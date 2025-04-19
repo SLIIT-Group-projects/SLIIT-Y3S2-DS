@@ -1,15 +1,17 @@
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; 
+import Register from "./components/Register"; 
+import Login from "./components/Login"; 
+import CustomerDash from "./components/CustomerDash"; 
+import RestaurantDash from "./components/RestaurantDash"; 
+import DeliveryDash from "./components/DeliveryDash";
 
-function App() {
-  return (
-    <>
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <h1 className="text-4xl font-bold text-blue-600">
-          Tailwind CSS is working!
-        </h1>
-      </div>
-    </>
-  );
-}
+function App() { const token = localStorage.getItem("token"); const role = localStorage.getItem("role");
 
-export default App;
+return (
+
+ <Route path="/register" element={} /> 
+ <Route path="/login" element={} /> 
+ <Route path="/customer" element={ token && role === "Customer" ? ( ) : ( ) } /> 
+ <Route path="/restaurant" element={ token && role === "Restaurant" ? ( ) : ( ) } /> <Route path="/delivery" element={ token && role === "Delivery" ? ( ) : ( ) } /> <Route path="/" element={} />
+
+ ); }
