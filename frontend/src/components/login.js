@@ -11,10 +11,13 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5001/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5001/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
 
@@ -46,12 +49,36 @@ function Login() {
       {error && <div className="text-red-500">{error}</div>}
 
       <form onSubmit={handleLogin} className="space-y-4">
-        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email" className="w-full p-2 border rounded-lg" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full p-2 border rounded-lg" required />
-        <button type="submit" className="w-full bg-green-600 text-white p-2 rounded-lg">Login</button>
+        <input
+          type="text"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="email"
+          className="w-full p-2 border rounded-lg"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full p-2 border rounded-lg"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white p-2 rounded-lg"
+        >
+          Login
+        </button>
       </form>
 
-      <p className="mt-4">Don't have an account? <a href="/register" className="text-blue-500">Register</a></p>
+      <p className="mt-4">
+        Don't have an account?{" "}
+        <a href="/register" className="text-blue-500">
+          Register
+        </a>
+      </p>
     </div>
   );
 }

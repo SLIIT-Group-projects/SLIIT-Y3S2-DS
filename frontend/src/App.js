@@ -14,7 +14,7 @@ import AdminDash from "./components/adminDash";
 
 function App() {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
 
   return (
     <Router>
