@@ -3,11 +3,19 @@ const DeliveryPerson = require("../models/DeliveryPerson");
 // register a new delivery person
 exports.registerDeliveryPerson = async (req, res) => {
   try {
-    const { userId, name, vehicaleType, currentLocation } = req.body;
+    const userId = req.user.id;
+    const { name, vehicaleType, address, currentLocation } = req.body;
+    const existingDeliveryPerson = await DeliveryPerson.findOne({ userId });
+    if (existingDeliveryPerson) {
+      return res
+        .status(400)
+        .json({ message: "Delivery person already exists" });
+    }
     const deliveryPerson = new DeliveryPerson({
       userId,
       name,
       vehicaleType,
+      address,
       currentLocation,
     });
     await deliveryPerson.save();

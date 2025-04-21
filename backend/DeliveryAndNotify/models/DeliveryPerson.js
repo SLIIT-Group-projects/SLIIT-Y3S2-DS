@@ -21,6 +21,10 @@ const DeliveryPersonSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  address: {
+    type: String,
+    required: true,
+  },
   currentLocation: {
     lat: {
       type: Number,
