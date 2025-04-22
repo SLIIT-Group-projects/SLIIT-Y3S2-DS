@@ -23,7 +23,6 @@ const DeliveryPersonSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: true,
   },
   currentLocation: {
     lat: {
