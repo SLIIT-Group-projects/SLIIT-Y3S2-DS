@@ -12,6 +12,7 @@ import RestaurantDash from "./components/ResturantDash";
 import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
 import DeliveryDriverForm from "./components/deliveryComponents/deliveryDriverForm";
+import DeliveryDriverUpdateForm from "./components/deliveryComponents/DeliveryDriverUpdateForm";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -57,6 +58,16 @@ function App() {
           element={
             token && role === "customer" ? (
               <DeliveryDriverForm />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/update-form"
+          element={
+            token && role === "delivery" ? (
+              <DeliveryDriverUpdateForm />
             ) : (
               <Navigate to="/login" />
             )

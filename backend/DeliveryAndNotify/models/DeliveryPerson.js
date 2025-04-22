@@ -17,6 +17,11 @@ const DeliveryPersonSchema = new mongoose.Schema({
     default: "bike",
     required: true,
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   isOnline: {
     type: Boolean,
     default: false,

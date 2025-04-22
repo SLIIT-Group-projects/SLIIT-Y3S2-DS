@@ -4,7 +4,8 @@ const DeliveryPerson = require("../models/DeliveryPerson");
 exports.registerDeliveryPerson = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, vehicaleType, address, currentLocation } = req.body;
+    const { name, vehicaleType, address, currentLocation, phoneNumber } =
+      req.body;
     const existingDeliveryPerson = await DeliveryPerson.findOne({ userId });
     if (existingDeliveryPerson) {
       return res
@@ -17,6 +18,7 @@ exports.registerDeliveryPerson = async (req, res) => {
       vehicaleType,
       address,
       currentLocation,
+      phoneNumber,
     });
     await deliveryPerson.save();
     return res.status(201).json({
@@ -46,8 +48,8 @@ exports.getAllDeliveryPersons = async (req, res) => {
 //get delivery person by id
 exports.getDeliveryPersonById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deliveryPerson = await DeliveryPerson.findById(id);
+    const id = req.user.id;
+    const deliveryPerson = await DeliveryPerson.findOne({ userId: id });
     if (!deliveryPerson) {
       return res.status(404).json({ message: "Delivery person not found" });
     }
@@ -64,9 +66,9 @@ exports.getDeliveryPersonById = async (req, res) => {
 // update delivery person by id
 exports.updateDeliveryPersonById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deliveryPerson = await DeliveryPerson.findByIdAndUpdate(
-      id,
+    const id = req.user.id;
+    const deliveryPerson = await DeliveryPerson.findOneAndUpdate(
+      { userId: id },
       req.body,
       {
         new: true,
@@ -78,6 +80,32 @@ exports.updateDeliveryPersonById = async (req, res) => {
     return res.status(200).json({
       message: "Delivery person updated successfully",
       deliveryPerson,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Toggle online status
+exports.updateOnlineStatus = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming user ID is from auth middleware
+    const { isOnline } = req.body; // Get new status from request body
+
+    const updatedPerson = await DeliveryPerson.findOneAndUpdate(
+      { userId: userId },
+      { isOnline: isOnline },
+      { new: true }
+    );
+
+    if (!updatedPerson) {
+      return res.status(404).json({ message: "Delivery person not found" });
+    }
+
+    return res.status(200).json({
+      message: `Delivery person is now ${isOnline ? "online" : "offline"}`,
+      deliveryPerson: updatedPerson,
     });
   } catch (err) {
     console.error(err);
