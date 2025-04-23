@@ -4,11 +4,19 @@ const router = express.Router();
 const cartController = require("../controllers/cartController");
 const verifyToken = require("../middleware/auth");
 
-router.post("/add", verifyToken, cartController.addToCart);
-router.get("/", verifyToken, cartController.getUserCart);
-router.delete("/:id", verifyToken, cartController.removeCartItem);
-router.delete("/", verifyToken, cartController.clearCart);
+router.post("/cart/add", verifyToken, cartController.addToCart);
+// update cart item
+router.put("/cart/update/:cartItemId", verifyToken, cartController.updateCartItemQuantity);
+router.get("/cart/", verifyToken, cartController.getUserCart);
+router.delete("/cart/:id", verifyToken, cartController.removeCartItem);
+router.delete("/cart/", verifyToken, cartController.clearCart);
 // get resturants
-router.get("/restaurants", verifyToken, cartController.getRestaurantIds);
+router.get("/cart/restaurants", verifyToken, cartController.getUserCartRestaurantDetails);
+// get items according to the resturant
+router.get(
+  "/cart/:restaurantId",
+  verifyToken,
+  cartController.getCartItemsByRestaurant
+);
 
 module.exports = router;

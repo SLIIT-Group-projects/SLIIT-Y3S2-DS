@@ -1,4 +1,3 @@
-// models/cartItem.js
 const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema(
@@ -26,7 +25,8 @@ const cartItemSchema = new mongoose.Schema(
       min: 1,
     },
     name: String,
-    price: Number,
+    price: Number, // single unit price
+    totalPrice: Number, // quantity * price
     imageUrl: String,
     preparationTime: Number,
   },
