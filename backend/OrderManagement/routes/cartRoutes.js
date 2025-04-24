@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const cartController = require("../controllers/cartController");
+const orderController = require("../controllers/orderController");
 const verifyToken = require("../middleware/auth");
 
 router.post("/cart/add", verifyToken, cartController.addToCart);
@@ -18,5 +19,8 @@ router.get(
   verifyToken,
   cartController.getCartItemsByRestaurant
 );
+
+// order 
+router.post("/place-order", verifyToken, orderController.placeOrder);
 
 module.exports = router;
