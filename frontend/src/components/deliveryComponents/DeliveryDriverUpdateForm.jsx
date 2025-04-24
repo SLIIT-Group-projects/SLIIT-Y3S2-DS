@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { updateDeliveryPerson } from "../../services/deliveryAPI";
-import MapBox from "./mapBox";
+import MapBox from "./MapBox";
 
 const DeliveryDriverUpdateForm = () => {
   const { state } = useLocation(); // Access the state passed via navigation
@@ -25,10 +25,6 @@ const DeliveryDriverUpdateForm = () => {
       setLocationSet(true);
     }
   }, [driverDetails]);
-
-  useEffect(() => {
-    console.log(formData);
-  }, []);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {

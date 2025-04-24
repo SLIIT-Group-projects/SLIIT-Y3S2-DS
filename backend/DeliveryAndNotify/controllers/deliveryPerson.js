@@ -113,6 +113,7 @@ exports.updateOnlineStatus = async (req, res) => {
   }
 };
 
+// Delete a delivery person
 exports.deleteDeliveryPersonById = async (req, res) => {
   try {
     const { id } = req.params;
