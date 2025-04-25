@@ -21,6 +21,19 @@ exports.getAllMenuItems = async (req, res) => {
   }
 };
 
+// Get menu item by ID (daham)
+exports.getMenuItemById = async (req, res) => {
+  try {
+    const menuItem = await MenuItem.findById(req.params.menuItemId);
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+    res.json(menuItem);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Get menu items by restaurant ID
 exports.getMenuItemsByRestaurant = async (req, res) => {
   try {

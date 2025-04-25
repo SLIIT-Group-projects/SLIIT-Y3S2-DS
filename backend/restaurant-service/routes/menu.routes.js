@@ -7,6 +7,8 @@ router.post('/', menuItemController.addMenuItem);
 
 // GET: All menu items
 router.get('/', menuItemController.getAllMenuItems);
+// get menuitems id(daham)
+router.get('/:menuItemId', menuItemController.getMenuItemById);
 
 // GET: Menu items by restaurant ID
 router.get('/restaurant/:restaurantId', menuItemController.getMenuItemsByRestaurant);
