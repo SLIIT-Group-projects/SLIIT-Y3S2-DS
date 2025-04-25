@@ -13,7 +13,7 @@ const menuItemSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Special','Rice and Curry','Fish and Seafood','Poultry and Meat','Vegetables','Pasta', 'Noodles'] 
+    enum: ['Appetizer', 'Main Course','Pizza', 'Dessert', 'Beverage', 'Special','Rice and Curry','Fish and Seafood','Poultry and Meat','Vegetables','Pasta', 'Noodles'] 
   },
   isAvailable: { type: Boolean, default: true },
   imageUrl: { type: String },

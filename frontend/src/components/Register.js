@@ -19,7 +19,13 @@ function Register() {
         password,
         role,
       });
-      navigate("/login");
+ 
+
+      if (role === "restaurant") {
+        navigate("/restaurant-register");
+      } else {
+        navigate("/login");
+      }
     } catch (err) {
       setError(err.response?.data.message || "Registration failed");
       console.log(err);
