@@ -2,72 +2,93 @@ const CartItem = require("../models/CartItem");
 const Order = require("../models/Order");
 
 exports.placeOrder = async (req, res) => {
-    const userId = req.user.id;
-    const {
-      restaurantId,
-      paymentMethod,
-      addressNo,
-      addressStreet,
-      longitude,
-      latitude,
-      deliveryCharge
-    } = req.body;
-  
-    if (
-      !restaurantId || !paymentMethod ||
-      !addressNo || !addressStreet ||
-      typeof longitude !== "number" || typeof latitude !== "number" ||
-      typeof deliveryCharge !== "number"
-    ) {
-      return res.status(400).json({ message: "Missing or invalid order details" });
+  const userId = req.user.id;
+  const {
+    restaurantId,
+    paymentMethod,
+    addressNo,
+    addressStreet,
+    longitude,
+    latitude,
+    deliveryCharge
+  } = req.body;
+
+  if (
+    !restaurantId || !paymentMethod ||
+    !addressNo || !addressStreet ||
+    typeof longitude !== "number" || typeof latitude !== "number" ||
+    typeof deliveryCharge !== "number"
+  ) {
+    return res.status(400).json({ message: "Missing or invalid order details" });
+  }
+
+  try {
+    // Get cart items for the user and restaurant
+    const cartItems = await CartItem.find({ userId, restaurantId });
+
+    if (!cartItems.length) {
+      return res.status(400).json({ message: "No items in cart for this restaurant" });
     }
-  
-    try {
-      const cartItems = await CartItem.find({ userId, restaurantId }).populate("menuItemId");
-  
-      if (!cartItems.length) {
-        return res.status(400).json({ message: "No items in cart for this restaurant" });
+
+    // Fetch menu item details using axios
+    const menuItemDetailsPromises = cartItems.map(async (item) => {
+      try {
+        const response = await axios.get(`http://localhost:5004/api/menu-items/${item.menuItemId}`);
+        return response.data; // Menu item details
+      } catch (error) {
+        console.error(`Error fetching menu item details for ${item.menuItemId}:`, error.message);
+        return null; // Return null if there's an error fetching the menu item
       }
-  
-      const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-      const totalAmount = subtotal + deliveryCharge;
-  
-      const items = cartItems.map((item) => ({
-        menuItem: item.menuItemId._id,
+    });
+
+    const menuItems = await Promise.all(menuItemDetailsPromises);
+
+    // Calculate subtotal and total amount
+    const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    const totalAmount = subtotal + deliveryCharge;
+
+    // Map cart items with fetched menu item details
+    const items = cartItems.map((item, index) => {
+      const menuItem = menuItems[index];
+      return {
+        menuItem: item.menuItemId,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
-      }));
-  
-      const order = new Order({
-        userId,
-        restaurantId,
-        items,
-        subtotal,
-        deliveryCharge,
-        totalAmount,
-        paymentMethod,
-        address: {
-          no: addressNo,
-          street: addressStreet,
-        },
-        location: {
-          longitude,
-          latitude,
-        },
-        status: "Pending",
-      });
-  
-      await order.save();
-      await CartItem.deleteMany({ userId, restaurantId });
-  
-      res.status(201).json({ message: "Order placed successfully", order });
-    } catch (error) {
-      console.error("Place order error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
+        menuItemDetails: menuItem ? menuItem : null, // Append menu item details or null if not found
+      };
+    });
+
+    // Create the new order
+    const order = new Order({
+      userId,
+      restaurantId,
+      items,
+      subtotal,
+      deliveryCharge,
+      totalAmount,
+      paymentMethod,
+      address: {
+        no: addressNo,
+        street: addressStreet,
+      },
+      location: {
+        longitude,
+        latitude,
+      },
+      status: "Pending",
+    });
+
+    await order.save();
+    await CartItem.deleteMany({ userId, restaurantId }); // Clear the cart after order is placed
+
+    res.status(201).json({ message: "Order placed successfully", order });
+  } catch (error) {
+    console.error("Place order error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
   
   //Get a order By ID
   exports.getOrderById = async (req, res) => {
