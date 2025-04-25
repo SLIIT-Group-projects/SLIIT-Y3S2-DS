@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { registerDeliveryPerson } from "../../services/deliveryAPI";
-import MapBox from "./MapBox";
+import MapBox from "./mapBox";
 
 const DeliveryDriverForm = () => {
   const [currentLocation, setCurrentLocation] = useState(false);

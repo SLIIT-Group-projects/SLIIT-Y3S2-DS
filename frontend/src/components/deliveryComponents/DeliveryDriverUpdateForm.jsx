@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { updateDeliveryPerson } from "../../services/deliveryAPI";
-import MapBox from "./MapBox";
+import MapBox from "./mapBox";
 
 const DeliveryDriverUpdateForm = () => {
   const { state } = useLocation(); // Access the state passed via navigation

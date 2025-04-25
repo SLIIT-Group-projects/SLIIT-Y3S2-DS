@@ -11,7 +11,7 @@ import CustomerDash from "./components/customerDash";
 import RestaurantDash from "./components/ResturantDash";
 import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
-import DeliveryDriverForm from "./components/deliveryComponents/DeliveryDriverForm";
+import DeliveryDriverForm from "./components/deliveryComponents/deliveryDriverForm";
 import DeliveryDriverUpdateForm from "./components/deliveryComponents/DeliveryDriverUpdateForm";
 
 function App() {
