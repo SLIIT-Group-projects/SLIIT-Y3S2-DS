@@ -12,7 +12,8 @@ import RestaurantDash from "./components/ResturantDash";
 import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
 import DeliveryDriverForm from "./components/deliveryComponents/deliveryDriverForm";
-import DeliveryDriverUpdateForm from "./components/deliveryComponents/DeliveryDriverUpdateForm";
+import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
+import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -22,7 +23,13 @@ function App() {
     <Router>
       <Routes>
         <Route path="/register" element={<Register />} />
+
         <Route path="/login" element={<Login />} />
+
+        <Route path="/restaurant" element={<RestaurantDash />} />
+        <Route path="/restaurant-register" element={<RestaurantRegister />} />
+        <Route path="/add-menuItems" element={<MenuRegister />} />
+
         <Route
           path="/customer"
           element={

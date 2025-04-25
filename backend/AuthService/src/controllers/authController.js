@@ -45,7 +45,16 @@ exports.login = async (req, res) => {
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
-  res.json({ token, role: user.role });
+  const responseData = {
+    token,
+    role: user.role
+  };
+
+  if (user.role === "restaurant") {
+    responseData.restaurantId = user._id;
+  }
+
+  res.json(responseData);
 };
 
 exports.getProfile = async (req, res) => {
