@@ -1,7 +1,5 @@
 // controllers/cartController.js
 const CartItem = require("../models/CartItem");
-
-
 const axios = require("axios");
 
 exports.addToCart = async (req, res) => {
@@ -72,12 +70,38 @@ exports.updateCartItemQuantity = async (req, res) => {
   }
 };
 
-// get all itenm(current user)
 exports.getUserCart = async (req, res) => {
   try {
-    const cartItems = await CartItem.find({ userId: req.user.id }).populate("menuItemId");
-    res.json(cartItems);
+    const cartItems = await CartItem.find({ userId: req.user.id });
+
+    if (!cartItems.length) {
+      return res.status(200).json([]);
+    }
+
+    // Fetch menu item details for each cart item
+    const cartItemsWithMenuDetails = await Promise.all(
+      cartItems.map(async (item) => {
+        try {
+          const response = await axios.get(`http://localhost:5004/api/menu-items/${item.menuItemId}`);
+          const menuItem = response.data;
+
+          return {
+            ...item.toObject(),    // Spread cart item properties
+            menuItemDetails: menuItem,  // Add menu item details
+          };
+        } catch (error) {
+          console.error(`Failed to fetch menu item for ${item.menuItemId}:`, error.message);
+          return {
+            ...item.toObject(),
+            menuItemDetails: null, // If fetch fails, keep it null
+          };
+        }
+      })
+    );
+
+    res.status(200).json(cartItemsWithMenuDetails);
   } catch (err) {
+    console.error("Error fetching user cart:", err.message);
     res.status(500).json({ message: "Server error" });
   }
 };
