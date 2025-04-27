@@ -5,11 +5,13 @@ import {
 } from "../services/deliveryAPI";
 import ToggleSwitch from "./deliveryComponents/ToggleSwitch";
 import { useNavigate } from "react-router-dom";
+import DeliveryList from "./deliveryComponents/DeliveryList";
+import Currentdeliveries from "./deliveryComponents/Currentdeliveries";
 
 function DeliveryDash() {
   const [driverDetails, setDriverDetails] = useState({});
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -51,7 +53,6 @@ function DeliveryDash() {
       try {
         const res = await getDeliveryPersonById();
         setDriverDetails(res.deliveryPerson);
-        console.log("Delivery person fetched successfully", res.deliveryPerson);
       } catch (error) {
         console.error("Error fetching delivery person:", error);
       }
@@ -62,7 +63,7 @@ function DeliveryDash() {
   return (
     <div className="p-6 min-h-screen bg-gray-100">
       <div className="flex gap-2">
-        <div className=" w-2/3 py-2 px-4 flex-1 flex flex-col justify-center">
+        <div className=" min-w-[45%] py-2 px-4 flex-1 flex flex-col justify-center">
           <div className="flex text-[3vw] gap-2 font-bold items-center">
             <div className="text-orange-500">Welcome</div>
             <div className="text-gray-800">{driverDetails.name}</div>
@@ -71,8 +72,9 @@ function DeliveryDash() {
             Welcome, Delivery Personnel! You can accept and fulfill deliveries.
           </p>
         </div>
+        <div className="min-w-[25%] border border-black">sdadsasdada</div>
 
-        <div className="bg-white rounded-2xl shadow-md w-1/3 py-2 px-4 flex">
+        <div className="bg-white rounded-2xl shadow-md min-w-[30%] py-2 px-4 flex">
           <div ref={menuRef} className="relative">
             {/* Profile Button */}
             <div
@@ -151,7 +153,7 @@ function DeliveryDash() {
 
             <div className="flex gap-1 text-lg mt-2">
               <div className="font-semibold">Phone :</div>
-              <div className="text-gray-500">{driverDetails._id}</div>
+              <div className="text-gray-500">{driverDetails.phoneNumber}</div>
             </div>
 
             {driverDetails.address && (
@@ -229,8 +231,16 @@ function DeliveryDash() {
             </div>
           </div>
         </div>
-        <div className="w-[30%] border border-black">sdasdasda</div>
-        <div className="w-[50%] border border-black">sdasdasda</div>
+        <div className="w-[30%] border border-black">
+          <Currentdeliveries />
+        </div>
+        <div className="w-[50%] border border-black h-[400px] overflow-y-auto">
+          {isOnline ? (
+            <DeliveryList />
+          ) : (
+            <div>you are not online stupid toggle the switch</div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // register a new delivery person
 export const registerDeliveryPerson = async (formData) => {
   const token = localStorage.getItem("token");
@@ -111,4 +113,42 @@ export const updateOnlineStatus = async (status) => {
     throw new Error(data.message || "Failed to update online status");
   }
   return data;
+};
+
+//get all active orders
+export const getAllActiveOrders = async (status) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(
+      `http://localhost:5003/api/order/stat/${status}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching orders by status:", error);
+    throw error.response?.data?.message || "Something went wrong";
+  }
+};
+
+//get accepted order by id
+export const getAcceptedOrderById = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(
+      `http://localhost:5003/api/order/stat/delivery/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching order by ID:", error);
+    throw error.response?.data?.message || "Something went wrong";
+  }
 };
