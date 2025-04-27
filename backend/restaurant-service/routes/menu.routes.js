@@ -1,20 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const menuItemController = require('../controllers/menu.controller');
+const menuController = require('../controllers/menu.controller');
+const verifyToken = require('../middleware/auth');
 
-// POST: Add menu item
-router.post('/', menuItemController.addMenuItem);
-
-// GET: All menu items
-router.get('/', menuItemController.getAllMenuItems);
-
-// GET: Menu items by restaurant ID
-router.get('/restaurant/:restaurantId', menuItemController.getMenuItemsByRestaurant);
-
-// DELETE: Menu item by ID
-router.delete('/:id', menuItemController.deleteMenuItem);
-
-// PUT: Update menu item by ID
-router.put('/:id', menuItemController.updateMenuItem);
+router.post('/', verifyToken, menuController.addMenuItem);
+router.get('/', menuController.getAllMenuItems);
+router.get('/restaurants/:restaurantId', verifyToken, menuController.getMenuItemsByRestaurant);
+router.get('/:menuItemId', menuController.getMenuItemById);
+router.get('/my', verifyToken, menuController.getMyMenuItems);
+router.put('/:id', verifyToken, menuController.updateMenuItem);
+router.delete('/:id', verifyToken, menuController.deleteMenuItem);
 
 module.exports = router;

@@ -3,7 +3,7 @@ import axios from "axios";
 
  function AddMenuItem() {
   const [form, setForm] = useState({
-    restaurantId: "",
+   
     name: "",
     description: "",
     price: "",
@@ -33,15 +33,35 @@ import axios from "axios";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    const storedRestaurantId = localStorage.getItem("restaurantId");
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      alert('No token found, please login again.');
+      return;
+    }
+  
+    if (!storedRestaurantId) {
+      alert('No restaurant selected.');
+      return;
+    }
+  
     const data = {
       ...form,
+      restaurantId: storedRestaurantId, // ✅ explicitly add restaurantId here
       price: parseFloat(form.price),
       preparationTime: parseInt(form.preparationTime),
       ingredients: form.ingredients.split(',').map(i => i.trim())
     };
-
+  
     try {
-      const res = await axios.post('http://localhost:5004/api/menu-items', data);
+      const res = await axios.post('http://localhost:5004/api/menu-items', data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
       alert('Menu item added!');
       console.log(res.data);
     } catch (err) {
@@ -49,14 +69,15 @@ import axios from "axios";
       alert('Error adding item');
     }
   };
+  
+  
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Add Menu Item</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
 
-        <input type="text" name="restaurantId" value={form.restaurantId} onChange={handleChange} readOnly className="w-full p-2 border rounded" required />
-
+       
         <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full p-2 border rounded" required />
 
         <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" />

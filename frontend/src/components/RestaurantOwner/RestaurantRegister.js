@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import deleteButton from '../../assets/deleteButton.png';
+import { useNavigate } from 'react-router-dom';
 
 function RestaurantRegister() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -21,7 +23,6 @@ function RestaurantRegister() {
         },
         openingHours: [],
         isAvailable: true,
-        ownerId: '',
         cuisineType: '',
         imageUrl: '',
         currentLocation: {
@@ -29,6 +30,18 @@ function RestaurantRegister() {
             lng: ''
         }
     });
+
+    // Remove ownerId from state since we'll get it from the token
+
+    useEffect(() => {
+        // Check if user is logged in and has restaurant role
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        
+        if (!token || role !== 'restaurant') {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -71,7 +84,6 @@ function RestaurantRegister() {
         setFormData(prev => ({ ...prev, openingHours: newOpeningHours }));
     };
 
-
     const addOpeningHour = () => {
         setFormData(prev => ({
             ...prev,
@@ -82,28 +94,43 @@ function RestaurantRegister() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Convert lat/lng and latitude/longitude to numbers before sending
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert('Please login first');
+                navigate('/login');
+                return;
+            }
+
+            // Prepare data to send
             const dataToSend = {
                 ...formData,
                 address: {
                     ...formData.address,
-                    latitude: parseFloat(formData.address.latitude),
-                    longitude: parseFloat(formData.address.longitude)
+                    latitude: parseFloat(formData.address.latitude) || 0,
+                    longitude: parseFloat(formData.address.longitude) || 0
                 },
                 currentLocation: {
-                    lat: parseFloat(formData.currentLocation.lat),
-                    lng: parseFloat(formData.currentLocation.lng)
+                    lat: parseFloat(formData.currentLocation.lat) || 0,
+                    lng: parseFloat(formData.currentLocation.lng) || 0
                 }
             };
 
-            await axios.post('http://localhost:5004/api/restaurants', dataToSend);
-            alert("Restaurant added successfully");
+            const response = await axios.post(
+                'http://localhost:5004/api/restaurants', 
+                dataToSend,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
 
-            //regirect to login
-            window.location.href = '/login';
+            alert("Restaurant added successfully");
+            navigate('/restaurant-dashboard'); // Redirect to restaurant dashboard
         } catch (err) {
-            console.error(err);
-            alert("Error adding restaurant");
+            console.error('Registration error:', err.response?.data || err.message);
+            alert(err.response?.data?.message || "Error adding restaurant");
         }
     };
 
@@ -284,17 +311,7 @@ function RestaurantRegister() {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Owner ID
-                                </label>
-                                <input
-                                    name="ownerId"
-                                    placeholder="Owner ID"
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
+                            
                         </div>
 
                         {/* Opening Hours */}
