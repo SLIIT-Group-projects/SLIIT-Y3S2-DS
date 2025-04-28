@@ -5,6 +5,8 @@ exports.acceptDelivery = async (req, res) => {
   try {
     const {
       orderId,
+      pickupAddress,
+      dropofAddress,
       pickupLocation,
       dropoffLocation,
       deliveryCharge,
@@ -15,6 +17,8 @@ exports.acceptDelivery = async (req, res) => {
     const deliveryOrder = new DeliveryOrder({
       orderId,
       driverId,
+      pickupAddress,
+      dropofAddress,
       pickupLocation,
       dropoffLocation,
       deliveryCharge,
@@ -34,7 +38,7 @@ exports.acceptDelivery = async (req, res) => {
 // 2. Pick Up Order (Mark as PickedUp)
 exports.pickupDelivery = async (req, res) => {
   try {
-    const { id } = req.params; // deliveryOrder id
+    const id = req.params.id; // deliveryOrder id
 
     const updatedDelivery = await DeliveryOrder.findByIdAndUpdate(
       id,
@@ -84,8 +88,8 @@ exports.completeDelivery = async (req, res) => {
 // 4. Get Delivery Order by ID
 exports.getDeliveryById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const delivery = await DeliveryOrder.findById(id);
+    const deliveryId = req.params.id; // Get the id from the URL params
+    const delivery = await DeliveryOrder.findById(deliveryId); // Find the delivery by its ID
 
     if (!delivery) {
       return res.status(404).json({ message: "Delivery order not found." });
@@ -105,7 +109,7 @@ exports.getAllCurrentDeliveries = async (req, res) => {
 
     const deliveries = await DeliveryOrder.find({
       driverId: driverId,
-      status: "DeliveryAccepted" || "OutForDelivery", // Only accepted deliveries
+      status: { $in: ["DeliveryAccepted", "OutForDelivery", "PickedUp"] }, // Only accepted deliveries
     });
 
     res.status(200).json(deliveries);

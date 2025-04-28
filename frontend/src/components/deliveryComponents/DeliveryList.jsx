@@ -6,10 +6,12 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import PreviewMap from "./PreviewMap";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { acceptDelivery } from "../../services/deliveryOrders";
 
 const DeliveryList = () => {
+  const navigate = useNavigate();
   const [deliveries, setDeliveries] = useState([]);
   const status = "Prepared";
   const [openMaps, setOpenMaps] = useState({}); // { orderId: true/false }
@@ -66,7 +68,7 @@ const DeliveryList = () => {
             });
           })
         );
-
+        console.log("orders details", deliveriesWithETA);
         setDeliveries(deliveriesWithETA);
       } catch (error) {
         console.error("Error fetching active orders:", error);
@@ -80,6 +82,7 @@ const DeliveryList = () => {
     console.log("fuck u mean", order._id);
     try {
       const result = await acceptDelivery(order);
+      navigate(`/delivery-screen/${result._id}`);
       console.log("Delivery accepted:", result);
     } catch (err) {
       console.error("Failed to accept delivery:", err);
@@ -282,15 +285,15 @@ const DeliveryList = () => {
                     >
                       {openMaps[order._id] ? "Hide Map" : "Show Map"}
                     </div>
-                    <Link
-                      to={`/delivery-screen/${order._id}`}
+                    <div
+                      // to={`/delivery-screen/${order._id}`}
                       className="bg-gray-500 text-white rounded-md px-4 py-2 cursor-pointer hover:bg-gray-600"
                       onClick={() => {
                         handleAccept(order);
                       }}
                     >
                       Accept Order
-                    </Link>
+                    </div>
                   </div>
                   <div>
                     {openMaps[order._id] && (

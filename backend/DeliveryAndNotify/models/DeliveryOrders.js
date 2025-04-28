@@ -28,6 +28,16 @@ const DeliveryOrderSchema = new mongoose.Schema(
       ],
       default: "DeliveryAccepted",
     },
+    pickupAddress: {
+      name: String,
+      street: String,
+      city: String,
+    },
+    dropofAddress: {
+      no: String,
+      street: String,
+      city: String,
+    },
     pickupLocation: {
       latitude: Number,
       longitude: Number,

@@ -231,7 +231,7 @@ function DeliveryDash() {
             </div>
           </div>
         </div>
-        <div className="w-[30%] border border-black">
+        <div className="w-[30%] border border-black h-[400px] overflow-y-auto">
           <Currentdeliveries />
         </div>
         <div className="w-[50%] border border-black h-[400px] overflow-y-auto">
