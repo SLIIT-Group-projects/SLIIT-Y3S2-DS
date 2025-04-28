@@ -1,5 +1,6 @@
 const CartItem = require("../models/CartItem");
 const Order = require("../models/Order");
+// const axios = require("axios");
 
 exports.placeOrder = async (req, res) => {
   const userId = req.user.id;

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const menuItemController = require('../controllers/menu.controller');
+const verifyToken = require("../middleware/auth");
 
 // POST: Add menu item
 router.post('/', menuItemController.addMenuItem);
