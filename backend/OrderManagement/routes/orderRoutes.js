@@ -26,8 +26,21 @@ router.get("/active/getDeliveredOrders", orderController.getDeliveredOrders);
 // Update order status
 router.put("/:id/status", verifyToken, orderController.updateOrderStatus);
 
-
 // Delete an order
 router.delete("/:id", verifyToken, orderController.deleteOrder);
+
+// get orders with resturant details by status
+router.get(
+  "/stat/:status",
+  verifyToken,
+  orderController.getOrdersWithResturants
+);
+
+//get orders with restaurant details by rest id
+router.get(
+  "/stat/delivery/:id",
+  verifyToken,
+  orderController.getOrderByIdWithRestaurantDetails
+);
 
 module.exports = router;

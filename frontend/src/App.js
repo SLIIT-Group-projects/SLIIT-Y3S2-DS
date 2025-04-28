@@ -9,11 +9,10 @@ import Register from "./components/Register";
 import Login from "./components/login";
 import CustomerDash from "./components/customerDash";
 import RestaurantDash from "./components/ResturantDash";
-import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
-import DeliveryDriverForm from "./components/deliveryComponents/deliveryDriverForm";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import MenuRegister from "./components/RestaurantOwner/MenuRegister";
+import DeliveryRoutes from "./routes/DeliveryRoutes";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -23,11 +22,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/register" element={<Register />} />
-        
-        
-        
+
         <Route path="/login" element={<Login />} />
-        
+
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
         <Route path="/add-menuItems" element={<MenuRegister />} />
@@ -52,26 +49,7 @@ function App() {
             )
           }
         />
-        <Route
-          path="/delivery"
-          element={
-            token && role === "delivery" ? (
-              <DeliveryDash />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/delivery-form"
-          element={
-            token && role === "customer" ? (
-              <DeliveryDriverForm />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+        {DeliveryRoutes()}
         <Route
           path="/admin"
           element={
@@ -79,7 +57,6 @@ function App() {
           }
         />
         <Route path="/" element={<Navigate to="/login" />} />
-
       </Routes>
     </Router>
   );

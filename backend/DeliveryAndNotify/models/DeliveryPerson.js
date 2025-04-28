@@ -17,13 +17,17 @@ const DeliveryPersonSchema = new mongoose.Schema({
     default: "bike",
     required: true,
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   isOnline: {
     type: Boolean,
     default: false,
   },
   address: {
     type: String,
-    required: true,
   },
   currentLocation: {
     lat: {

@@ -164,7 +164,17 @@ exports.getAllOrders = async (req, res) => {
 // Get orders by status
 exports.getOrdersByStatus = async (req, res) => {
   const { status } = req.params;
-  const validStatuses = ["Pending", "Confirmed", "Preparing","Prepared", "OutForDelivery", "Delivered"];
+  const validStatuses = [
+    "Pending",
+    "Confirmed",
+    "Preparing",
+    "Prepared",
+    "DeliveryAccepted",
+    "OutForDelivery",
+    "Delivered",
+    "Cancelled",
+    "PickedUp",
+  ];
 
   // Check if the provided status is valid
   if (!validStatuses.includes(status)) {
@@ -279,7 +289,17 @@ exports.updateOrderStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const validStatuses = ["Pending", "Confirmed", "Preparing","Prepared", "OutForDelivery", "Delivered", "Cancelled"];
+  const validStatuses = [
+    "Pending",
+    "Confirmed",
+    "Preparing",
+    "Prepared",
+    "DeliveryAccepted",
+    "OutForDelivery",
+    "Delivered",
+    "Cancelled",
+    "PickedUp",
+  ];
 
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
@@ -316,6 +336,123 @@ exports.deleteOrder = async (req, res) => {
     res.status(200).json({ message: "Order deleted successfully" });
   } catch (error) {
     console.error("Delete order error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// orders with resturant details
+exports.getOrdersWithResturants = async (req, res) => {
+  const { status } = req.params;
+  const validStatuses = [
+    "Pending",
+    "Confirmed",
+    "Preparing",
+    "Prepared",
+    "DeliveryAccepted",
+    "OutForDelivery",
+    "Delivered",
+    "Cancelled",
+    "PickedUp",
+  ];
+
+  // Check if the provided status is valid
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid order status" });
+  }
+
+  try {
+    const orders = await Order.find({ status });
+
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        // 🧾 Get menu item details
+        const orderItemsWithDetails = await Promise.all(
+          order.items.map(async (item) => {
+            try {
+              const menuItemResponse = await axios.get(
+                http://localhost:5004/api/menu-items/${item.menuItem}
+              );
+              item.menuItem = menuItemResponse.data;
+              return item;
+            } catch (error) {
+              console.error("Error fetching menu item details:", error.message);
+              item.menuItem = null;
+              return item;
+            }
+          })
+        );
+
+        // 🏪 Get restaurant details
+        let restaurantDetails = null;
+        try {
+          const restId = order.restaurantId?.toString(); // Ensure it's a string
+          const restaurantRes = await axios.get(
+            http://localhost:5004/api/restaurants/${restId}
+          );
+          restaurantDetails = restaurantRes.data;
+        } catch (error) {
+          console.error("Error fetching restaurant details:", error.message);
+        }
+
+        return {
+          ...order.toObject(), // convert Mongoose document to plain JS object
+          items: orderItemsWithDetails,
+          restaurant: restaurantDetails,
+        };
+      })
+    );
+
+    res.status(200).json(ordersWithDetails);
+  } catch (error) {
+    console.error("Get orders by status error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// get orders by orderId with restaurant details
+exports.getOrderByIdWithRestaurantDetails = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const orderItemsWithDetails = await Promise.all(
+      order.items.map(async (item) => {
+        try {
+          const menuItemResponse = await axios.get(
+            http://localhost:5004/api/menu-items/${item.menuItem}
+          );
+          item.menuItem = menuItemResponse.data;
+          return item;
+        } catch (error) {
+          console.error("Error fetching menu item details:", error);
+          return item;
+        }
+      })
+    );
+
+    // 🏪 Get restaurant details
+    let restaurantDetails = null;
+    try {
+      const restId = order.restaurantId?.toString();
+      const restaurantRes = await axios.get(
+        http://localhost:5004/api/restaurants/${restId}
+      );
+      restaurantDetails = restaurantRes.data;
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error.message);
+    }
+
+    // ✅ Correct response
+    res.json({
+      ...order.toObject(),
+      items: orderItemsWithDetails,
+      restaurant: restaurantDetails,
+    });
+  } catch (error) {
+    console.error("Get order by ID error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

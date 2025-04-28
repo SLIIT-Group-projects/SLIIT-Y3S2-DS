@@ -1,19 +1,30 @@
-import React, { useState } from "react";
-import { registerDeliveryPerson } from "../../services/deliveryAPI";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { updateDeliveryPerson } from "../../services/deliveryAPI";
 import MapBox from "./mapBox";
 
-const DeliveryDriverForm = () => {
+const DeliveryDriverUpdateForm = () => {
+  const { state } = useLocation(); // Access the state passed via navigation
+  const { driverDetails } = state; // Destructure the driverDetails object
+
+  // Set initial form data from driverDetails
+  const [locationSet, setLocationSet] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    vehicaleType: "bike",
-    address: "",
-    phoneNumber: "",
-    lat: "",
-    lng: "",
+    name: driverDetails?.name || "",
+    vehicaleType: driverDetails?.vehicaleType || "bike", // Default to "bike" if not available
+    address: driverDetails?.address || "",
+    phoneNumber: driverDetails?.phoneNumber || "",
+    lat: driverDetails?.currentLocation.lat || "",
+    lng: driverDetails?.currentLocation.lng || "",
   });
 
-  const [locationSet, setLocationSet] = useState(false);
+  useEffect(() => {
+    // If driverDetails has lat and lng, set locationSet to true
+    if (driverDetails?.lat && driverDetails?.lng) {
+      setLocationSet(true);
+    }
+  }, [driverDetails]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -89,8 +100,8 @@ const DeliveryDriverForm = () => {
     }
 
     try {
-      await registerDeliveryPerson(formData);
-      alert("Delivery person registered!");
+      await updateDeliveryPerson(formData);
+      alert("Delivery person updated!");
       setFormData({
         name: "",
         vehicaleType: "bike",
@@ -100,6 +111,7 @@ const DeliveryDriverForm = () => {
         lng: "",
       });
       setLocationSet(false);
+      window.location.href = "/delivery";
     } catch (err) {
       console.error(err);
       alert(err.message || "Submission failed");
@@ -113,7 +125,7 @@ const DeliveryDriverForm = () => {
         className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-lg space-y-6"
       >
         <h2 className="text-3xl font-bold text-center text-gray-700">
-          Delivery Person <div className="text-orange-500">Registration</div>
+          Delivery Person <div className="text-orange-500">Update</div>
         </h2>
         <div>
           <label
@@ -156,21 +168,21 @@ const DeliveryDriverForm = () => {
 
         <div>
           <label
-            htmlFor="name"
+            htmlFor="phoneNumber"
             className="block text-gray-700 font-medium mb-1"
           >
             Phone Number:
-            <input
-              type="text"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Enter your phone number"
-              className="w-full p-3 border border-gray-300 rounded-lg"
-              required
-            />
           </label>
+          <input
+            type="text"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            placeholder="Enter your phone number"
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            required
+          />
         </div>
 
         <div>
@@ -274,4 +286,4 @@ const DeliveryDriverForm = () => {
   );
 };
 
-export default DeliveryDriverForm;
+export default DeliveryDriverUpdateForm;
