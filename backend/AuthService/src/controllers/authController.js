@@ -62,3 +62,8 @@ exports.getAllCustomers = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+// Get user by ID
+// In User Service src/routes/userRoute.js
+
+

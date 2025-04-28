@@ -1,5 +1,7 @@
 const Restaurant = require("../models/Restaurant");
 const cloudinary = require("../utils/cloudinary");
+const sendEmail = require("../utils/emailService");
+const axios = require("axios")
 
 // Create a restaurant (only for restaurant role users)
 exports.createRestaurant = async (req, res) => {
@@ -136,20 +138,90 @@ exports.deleteRestaurant = async (req, res) => {
 
 // Admin: Verify (Approve) Restaurant
 exports.verifyRestaurant = async (req, res) => {
-    try {
-      const restaurant = await Restaurant.findById(req.params.id);
-  
-      if (!restaurant) {
-        return res.status(404).json({ message: "Restaurant not found" });
-      }
-  
-      restaurant.status = "Approved";
-      restaurant.isVerified = true;
-      await restaurant.save();
-  
-      res.status(200).json({ message: "Restaurant approved successfully", restaurant });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  try {
+    console.log("✅ Starting verifyRestaurant...");
+
+    const restaurant = await Restaurant.findById(req.params.id);
+    console.log("✅ Fetched restaurant:", restaurant);
+
+    if (!restaurant) {
+      console.log("❌ Restaurant not found");
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-  };
-  
+
+    // 🔥 Trying to fetch owner from User Service
+    console.log(`👉 Calling User Service for ownerId: ${restaurant.ownerId}`);
+    const userResponse = await axios.get(`http://localhost:5001/api/auth/user/${restaurant.ownerId}`);
+    console.log("✅ User Service Response:", userResponse.data);
+
+    const user = userResponse.data;
+
+    if (!user || !user.email) {
+      console.log("❌ Owner email not found");
+      return res.status(404).json({ message: "Owner not found or invalid" });
+    }
+
+    // 🔥 Updating restaurant status
+    restaurant.status = "Approved";
+    restaurant.isVerified = true;
+    await restaurant.save();
+    console.log("✅ Restaurant updated and saved!");
+
+    // 🔥 Sending email
+    await sendEmail(
+      user.email,
+      "🎉 Restaurant Approved!",
+      `Hi ${user.name}, your restaurant "${restaurant.name}" is now live!`
+    );
+    console.log("✅ Email sent successfully to:", user.email);
+
+    res.status(200).json({ message: "Restaurant approved and email sent", restaurant });
+
+  } catch (error) {
+    console.error("❌ Caught Error in verifyRestaurant:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+// Admin: Reject Restaurant
+exports.rejectRestaurant = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
+    // ✅ Fetch owner details from User Service
+    console.log(`👉 Calling User Service for ownerId: ${restaurant.ownerId}`);
+    const userResponse = await axios.get(`http://localhost:5001/api/auth/user/${restaurant.ownerId}`);
+    const user = userResponse.data;
+
+    if (!user || !user.email) {
+      console.log("❌ Owner email not found for rejected email");
+      return res.status(404).json({ message: "Owner not found or invalid" });
+    }
+
+    // ✅ Update restaurant status
+    restaurant.status = "Rejected";
+    restaurant.isVerified = false;
+    await restaurant.save();
+    console.log("✅ Restaurant status updated to Rejected");
+
+    // ✅ Send rejection email
+    await sendEmail(
+      user.email,
+      "❌ Restaurant Rejected",
+      `Hi ${user.name}, we regret to inform you that your restaurant "${restaurant.name}" has been rejected. Please contact support for further details.`
+    );
+    console.log("✅ Rejection email sent to:", user.email);
+
+    res.status(200).json({ message: "Restaurant rejected and email sent", restaurant });
+
+  } catch (error) {
+    console.error("❌ Error in rejectRestaurant:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
