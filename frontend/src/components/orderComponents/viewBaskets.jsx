@@ -43,16 +43,17 @@ function ViewBasket() {
       {restaurants.length === 0 ? (
         <div className="text-gray-500 text-lg">Your cart is empty.</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {restaurants.map((restaurant) => (
             <div
               key={restaurant._id}
-              className="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2"
+              className="bg-gradient-to-br from-orange-100 via-white to-orange-50 rounded-xl shadow-md p-6 flex flex-col gap-3 cursor-pointer
+               hover:shadow-xl hover:brightness-105 transition-all duration-300 ease-in-out"
             >
               <h2 className="text-2xl font-semibold text-orange-500">{restaurant.name}</h2>
               <p className="text-gray-600">{restaurant.description || "No description available"}</p>
 
-              <div className="text-sm text-gray-500 space-y-1">
+              <div className="text-sm text-gray-700 space-y-1">
                 {/* 🏠 Address */}
                 <div>
                   🏠 Address:{" "}
@@ -60,7 +61,6 @@ function ViewBasket() {
                     ? `${restaurant.address.buildingNumber}, ${restaurant.address.street}, ${restaurant.address.city}, ${restaurant.address.district}, ${restaurant.address.postalCode}`
                     : "Address not available"}
                 </div>
-
 
                 {/* ☎️ Contact Phone */}
                 <div>
@@ -76,7 +76,7 @@ function ViewBasket() {
                 <div>
                   ⏰ Opening Hours:
                   {restaurant.openingHours && restaurant.openingHours.length > 0 ? (
-                    <ul className="list-disc list-inside">
+                    <ul className="list-disc list-inside ml-4">
                       {restaurant.openingHours.map((hours, idx) => (
                         <li key={idx}>
                           {hours.day}: {hours.open} - {hours.close}

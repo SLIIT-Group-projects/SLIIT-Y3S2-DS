@@ -42,7 +42,9 @@ function OrdersPage() {
         <button
           onClick={() => setActiveTab("ongoing")}
           className={`px-4 py-2 rounded ${
-            activeTab === "ongoing" ? "bg-orange-500 text-white" : "bg-white text-orange-600 border"
+            activeTab === "ongoing"
+              ? "bg-orange-500 text-white"
+              : "bg-white text-orange-600 border"
           }`}
         >
           Ongoing Orders
@@ -50,7 +52,9 @@ function OrdersPage() {
         <button
           onClick={() => setActiveTab("past")}
           className={`px-4 py-2 rounded ${
-            activeTab === "past" ? "bg-orange-500 text-white" : "bg-white text-orange-600 border"
+            activeTab === "past"
+              ? "bg-orange-500 text-white"
+              : "bg-white text-orange-600 border"
           }`}
         >
           Past Orders
@@ -68,10 +72,10 @@ function OrdersPage() {
             orders.map((order) => (
               <div
                 key={order._id}
-                className="bg-white rounded-lg shadow-md p-6 flex flex-col gap-3 cursor-pointer hover:shadow-lg transition"
+                className="bg-gradient-to-br from-orange-100 via-white to-orange-50 rounded-lg shadow-md p-6 flex flex-col gap-3 cursor-pointer 
+                hover:scale-105  hover:shadow-xl hover:brightness-105 transition-all duration-700 ease-in-out"
                 onClick={() => setSelectedOrder(order)}
               >
-                {/* <h2 className="text-xl font-semibold">{order.menuItemDetails?.name || "Unknown Item"}</h2> */}
                 <p><strong>Status:</strong> {order.status}</p>
                 <p><strong>Ordered At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
 
