@@ -15,6 +15,7 @@ app.use(express.json());
 const restaurantRoutes = require('./routes/restaurant.routes');
 const menuItemRoutes = require('./routes/menu.routes');
 
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

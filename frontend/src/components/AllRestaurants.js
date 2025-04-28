@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const CustomerDash = () => {
+const AllRestaurants = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -35,7 +35,7 @@ const CustomerDash = () => {
                 {restaurants.map(restaurant => (
                     <div
                         key={restaurant._id}
-                        onClick={() => navigate(`/menu-items/restaurants/${restaurant._id}`)}
+                        onClick={() => navigate(`/menu-items/restaurants/${restaurant._id}/menu-items`)}
                         className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
                     >
                         <div className="relative h-48 overflow-hidden">
@@ -67,4 +67,4 @@ const CustomerDash = () => {
     );
 };
 
-export default CustomerDash;
+export default AllRestaurants;

@@ -1,19 +1,29 @@
 const Restaurant = require('../models/Restaurant');
+const cloudinary = require('../utils/cloudinary');
 
 // Create a restaurant (only for restaurant role users)
 exports.createRestaurant = async (req, res) => {
     try {
-        // No DB call to User model
         const { id, role } = req.user;
 
         if (role !== 'restaurant') {
             return res.status(403).json({ message: "Only restaurant users can create restaurants" });
         }
 
-        // Add the ownerId from the decoded token
+        let imageUrl = null;
+
+        if (req.file) { // If image is uploaded
+            const base64Str = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const result = await cloudinary.uploader.upload(base64Str, {
+                folder: 'restaurants'
+            });
+            imageUrl = result.secure_url;
+        }
+
         const restaurantData = {
             ...req.body,
-            ownerId: id
+            ownerId: id,
+            imageUrl: imageUrl, // Save image URL
         };
 
         const restaurant = new Restaurant(restaurantData);
@@ -23,6 +33,7 @@ exports.createRestaurant = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Get all restaurants
 exports.getAllRestaurants = async (req, res) => {
@@ -59,7 +70,7 @@ exports.getMyRestaurants = async (req, res) => {
 // Update restaurant
 exports.updateRestaurant = async (req, res) => {
     try {
-        const { id } = req.user; // token user id
+        const { id } = req.user;
         const restaurant = await Restaurant.findById(req.params.id);
         
         if (!restaurant) {
@@ -70,12 +81,23 @@ exports.updateRestaurant = async (req, res) => {
             return res.status(403).json({ message: "Not authorized to update this restaurant" });
         }
 
-        const updated = await Restaurant.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        let updatedData = { ...req.body };
+
+        if (req.file) { // New image uploaded
+            const base64Str = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const result = await cloudinary.uploader.upload(base64Str, {
+                folder: 'restaurants'
+            });
+            updatedData.image = result.secure_url;
+        }
+
+        const updated = await Restaurant.findByIdAndUpdate(req.params.id, updatedData, { new: true });
         res.status(200).json(updated);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Delete restaurant
 exports.deleteRestaurant = async (req, res) => {
