@@ -13,6 +13,7 @@ import AdminDash from "./components/adminDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 import DeliveryRoutes from "./routes/DeliveryRoutes";
+import OrderRoutes from "./routes/OrderRoutes";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -50,6 +51,7 @@ function App() {
           }
         />
         {DeliveryRoutes()}
+        {OrderRoutes()}
         <Route
           path="/admin"
           element={

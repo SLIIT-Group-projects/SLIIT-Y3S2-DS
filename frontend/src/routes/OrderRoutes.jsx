@@ -1,0 +1,34 @@
+import { Route, Navigate } from "react-router-dom";
+import ViewBasket from "../components/orderComponents/viewBaskets";
+import ViewBasketItems from "../components/orderComponents/viewBasketItems";
+
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+
+export default function DeliveryRoutes() {
+  return (
+    <>
+      <Route
+        path="/viewBasket"
+        element={
+          token && role === "customer" ? (
+            <ViewBasket />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+
+      <Route
+        path="/viewBasketItems/:restaurantId"
+        element={
+          token && role === "customer" ? (
+            <ViewBasketItems />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+    </>
+  );
+}
