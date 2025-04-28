@@ -44,41 +44,62 @@ function Login() {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Login</h2>
-      {error && <div className="text-red-500">{error}</div>}
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="max-w-4xl w-full bg-white shadow-lg rounded-lg flex overflow-hidden">
+        {/* Left Side - Image */}
+        <div className="hidden md:block w-1/2 bg-orange-100">
+          <img
+            src="https://img.freepik.com/free-photo/people-taking-photos-food_23-2149303524.jpg?t=st=1745481687~exp=1745485287~hmac=254c09f52230e29104f43bd064ac6c449f89317ac422781b3d7b9bf4b301f919&w=1380"
+            alt="Delicious Meal"
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
 
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="email"
-          className="w-full p-2 border rounded-lg"
-          required
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-2 border rounded-lg"
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white p-2 rounded-lg"
-        >
-          Login
-        </button>
-      </form>
+        {/* Right Side - Login Form */}
+        <div className="w-full md:w-1/2 p-8">
+          <h2 className="text-3xl font-bold text-black mb-6 text-center">
+            Login
+          </h2>
+          {error && (
+            <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
+          )}
 
-      <p className="mt-4">
-        Don't have an account?{" "}
-        <a href="/register" className="text-blue-500">
-          Register
-        </a>
-      </p>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <input
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-gray-400"
+              required
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-gray-400"
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition duration-300 font-semibold"
+            >
+              Login
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-black">
+            Don't have an account?{" "}
+            <a
+              href="/register"
+              className="text-orange-500 hover:underline font-medium"
+            >
+              Register
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

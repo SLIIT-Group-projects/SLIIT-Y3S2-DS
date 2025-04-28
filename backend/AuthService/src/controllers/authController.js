@@ -52,3 +52,13 @@ exports.getProfile = async (req, res) => {
   const user = await User.findById(req.user.id).select("-password");
   res.json(user);
 };
+
+exports.getAllCustomers = async (req, res) => {
+  try {
+    const customers = await User.find({ role: "customer" }).select("-password"); // exclude password
+    res.status(200).json(customers);
+  } catch (err) {
+    console.error("Error fetching customers:", err.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};

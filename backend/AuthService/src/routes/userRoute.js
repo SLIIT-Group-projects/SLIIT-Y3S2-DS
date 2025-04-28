@@ -14,4 +14,7 @@ router.get("/delivery-panel", verifyToken, permit("delivery"), (req, res) =>
   res.send("Delivery Access")
 );
 
+router.get("/customers", verifyToken, permit("admin"), authController.getAllCustomers);
+
+
 module.exports = router;
