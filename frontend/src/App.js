@@ -9,13 +9,12 @@ import Register from "./components/Register";
 import Login from "./components/login";
 import CustomerDash from "./components/customerDash";
 import RestaurantDash from "./components/ResturantDash";
-import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
-import PaymentForm from "./components/payment/PaymentForm";
-import AllCustomers from "./components/AdminDashboard/AllCustomers";
-import TransactionList from "./components/AdminDashboard/Transaction";
-import AdminRestaurantList from "./components/AdminDashboard/ResturantList";
-import { Toaster } from "react-hot-toast";
+import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
+import MenuRegister from "./components/RestaurantOwner/MenuRegister";
+import DeliveryRoutes from "./routes/DeliveryRoutes";
+import OrderRoutes from "./routes/OrderRoutes";
+
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
@@ -25,8 +24,14 @@ function App() {
       <Toaster position="top-center" />
       <Routes>
         <Route path="/register" element={<Register />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/payment" element={<PaymentForm />} />
+
+        <Route path="/restaurant" element={<RestaurantDash />} />
+        <Route path="/restaurant-register" element={<RestaurantRegister />} />
+        <Route path="/add-menuItems" element={<MenuRegister />} />
+
         <Route
           path="/customer"
           element={
@@ -47,16 +52,8 @@ function App() {
             )
           }
         />
-        <Route
-          path="/delivery"
-          element={
-            token && role === "delivery" ? (
-              <DeliveryDash />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+        {DeliveryRoutes()}
+        {OrderRoutes()}
         <Route
           path="/admin"
           element={
