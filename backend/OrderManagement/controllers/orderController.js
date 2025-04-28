@@ -369,9 +369,9 @@ exports.getOrdersWithResturants = async (req, res) => {
         const orderItemsWithDetails = await Promise.all(
           order.items.map(async (item) => {
             try {
-              const menuItemResponse = await axios.get(
+              const menuItemResponse = await axios.get(`
                 http://localhost:5004/api/menu-items/${item.menuItem}
-              );
+              `);
               item.menuItem = menuItemResponse.data;
               return item;
             } catch (error) {
@@ -386,9 +386,9 @@ exports.getOrdersWithResturants = async (req, res) => {
         let restaurantDetails = null;
         try {
           const restId = order.restaurantId?.toString(); // Ensure it's a string
-          const restaurantRes = await axios.get(
+          const restaurantRes = await axios.get(`
             http://localhost:5004/api/restaurants/${restId}
-          );
+          `);
           restaurantDetails = restaurantRes.data;
         } catch (error) {
           console.error("Error fetching restaurant details:", error.message);
@@ -421,9 +421,9 @@ exports.getOrderByIdWithRestaurantDetails = async (req, res) => {
     const orderItemsWithDetails = await Promise.all(
       order.items.map(async (item) => {
         try {
-          const menuItemResponse = await axios.get(
+          const menuItemResponse = await axios.get(`
             http://localhost:5004/api/menu-items/${item.menuItem}
-          );
+          `);
           item.menuItem = menuItemResponse.data;
           return item;
         } catch (error) {
@@ -437,9 +437,9 @@ exports.getOrderByIdWithRestaurantDetails = async (req, res) => {
     let restaurantDetails = null;
     try {
       const restId = order.restaurantId?.toString();
-      const restaurantRes = await axios.get(
+      const restaurantRes = await axios.get(`
         http://localhost:5004/api/restaurants/${restId}
-      );
+      `);
       restaurantDetails = restaurantRes.data;
     } catch (error) {
       console.error("Error fetching restaurant details:", error.message);
