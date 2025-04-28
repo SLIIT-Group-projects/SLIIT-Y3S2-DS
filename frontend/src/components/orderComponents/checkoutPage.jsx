@@ -1,6 +1,7 @@
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import Swal from 'sweetalert2';  // <-- New Import
 
 function CheckoutPage() {
   const { restaurantId } = useParams();
@@ -12,15 +13,14 @@ function CheckoutPage() {
   const [addressNo, setAddressNo] = useState("");
   const [addressStreet, setAddressStreet] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CashOnDelivery");
-  const [mobileNumber, setMobileNumber] = useState(""); // New state for mobile number
+  const [mobileNumber, setMobileNumber] = useState("");
 
   const handlePlaceOrder = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      // If payment method is Card, redirect to the payment page
       if (paymentMethod === "Card") {
-        navigate("/payment"); // Redirect to /payment route
+        navigate("/payment");
         return;
       }
 
@@ -29,10 +29,10 @@ function CheckoutPage() {
         paymentMethod: paymentMethod,
         addressNo: addressNo,
         addressStreet: addressStreet,
-        longitude: 80.6385,  // hardcoded
-        latitude: 7.2906,    // hardcoded
+        longitude: 80.6385,
+        latitude: 7.2906,
         deliveryCharge: deliveryCharge,
-        mobileNumber: mobileNumber,  // Include mobile number in order data
+        mobileNumber: mobileNumber,
       };
 
       console.log("Sending order:", orderData);
@@ -41,11 +41,32 @@ function CheckoutPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("Order placed successfully!");
-      navigate("/viewBasket");
+      // SweetAlert2 Success Alert
+      Swal.fire({
+        title: 'Order Placed!',
+        text: 'Your delicious food is on its way!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        background: '#f0fff0',
+        
+      });
+
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        navigate("/viewBasket");
+      }, 2000);
+
     } catch (error) {
       console.error("Error placing order:", error);
-      alert("Failed to place order. Please try again.");
+      // SweetAlert2 Error Alert
+      Swal.fire({
+        title: 'Oops!',
+        text: 'Failed to place order. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
