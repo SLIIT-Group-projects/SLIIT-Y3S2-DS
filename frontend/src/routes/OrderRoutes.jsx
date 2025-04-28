@@ -1,6 +1,7 @@
 import { Route, Navigate } from "react-router-dom";
 import ViewBasket from "../components/orderComponents/viewBaskets";
 import ViewBasketItems from "../components/orderComponents/viewBasketItems";
+import CheckoutRoute from "../components/orderComponents/checkoutPage";
 
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role");
@@ -24,6 +25,17 @@ export default function DeliveryRoutes() {
         element={
           token && role === "customer" ? (
             <ViewBasketItems />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+
+      <Route
+        path="/checkout/:restaurantId"
+        element={
+          token && role === "customer" ? (
+            <CheckoutRoute />
           ) : (
             <Navigate to="/login" />
           )

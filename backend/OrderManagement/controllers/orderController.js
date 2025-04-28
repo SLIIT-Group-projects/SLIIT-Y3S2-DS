@@ -11,12 +11,14 @@ exports.placeOrder = async (req, res) => {
     addressStreet,
     longitude,
     latitude,
-    deliveryCharge
+    deliveryCharge,
+    mobileNumber,  // Add mobileNumber to the destructured body
   } = req.body;
 
   if (
     !restaurantId || !paymentMethod ||
-    !addressNo || !addressStreet ||
+    !addressNo || !addressStreet || 
+    !mobileNumber || // Check if mobileNumber is provided
     typeof longitude !== "number" || typeof latitude !== "number" ||
     typeof deliveryCharge !== "number"
   ) {
@@ -73,6 +75,7 @@ exports.placeOrder = async (req, res) => {
       address: {
         no: addressNo,
         street: addressStreet,
+        mobileNumber: mobileNumber, // Save the mobile number in address
       },
       location: {
         longitude,
@@ -90,6 +93,7 @@ exports.placeOrder = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
   
   //Get a order By ID
   exports.getOrderById = async (req, res) => {
