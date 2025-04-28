@@ -14,6 +14,7 @@ import AdminDash from "./components/adminDash";
 import PaymentForm from "./components/payment/PaymentForm";
 import AllCustomers from "./components/AdminDashboard/AllCustomers"
 import TransactionList from "./components/AdminDashboard/Transaction";
+import AdminRestaurantList from "./components/AdminDashboard/ResturantList";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
@@ -64,6 +65,7 @@ function App() {
         
         <Route path="/admin/users" element={<AllCustomers/>} />
         <Route path="/admin/transactions" element={<TransactionList/>} />
+        <Route path="/admin/restaurants" element={<AdminRestaurantList />} />
       </Routes>
     </Router>
   );
