@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 const restaurantRoutes = require("./src/routes/restaurant.route");
-// const menuItemRoutes = require('./routes/menu.routes');
+const menuItemRoutes = require('./routes/menu.routes');
 
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
@@ -30,6 +30,4 @@ mongoose
   });
 
 app.use("/api/restaurants", restaurantRoutes);
-// app.use('/api/menu-items', menuItemRoutes);
-
 app.use("/api/menu-items", menuItemRoutes);

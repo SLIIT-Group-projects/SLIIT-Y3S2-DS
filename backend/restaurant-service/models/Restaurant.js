@@ -48,4 +48,4 @@ const restaurantSchema = new mongoose.Schema({
       }
 }, { timestamps: true }); // createdAt and updatedAt
 
-module.exports = mongoose.model('Restaurant', restaurantSchema);
+module.exports = mongoose.models.Restaurant || mongoose.model('Restaurant', restaurantSchema);

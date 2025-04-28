@@ -15,6 +15,14 @@ import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 import DeliveryRoutes from "./routes/DeliveryRoutes";
 import OrderRoutes from "./routes/OrderRoutes";
 
+
+import PaymentForm from "./components/payment/PaymentForm"
+import AllCustomers from "./components/AdminDashboard/AllCustomers"
+import TransactionList from "./components/AdminDashboard/Transaction";
+import AdminRestaurantList from "./components/AdminDashboard/ResturantList"
+
+// toast msg
+import { Toaster } from "react-hot-toast";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize

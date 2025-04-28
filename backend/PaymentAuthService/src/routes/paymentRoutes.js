@@ -1,10 +1,11 @@
 const express = require("express");
-const  {createPaymentIntent, getAllTransactions}  = require("../controllers/paymentController.js");
+const { createPaymentIntent, updatePayment, getAllTransactions } = require("../controllers/paymentController.js");
+const verifyToken = require("../middleware/auth.js");
 
 const router = express.Router();
-router.post("/intent", createPaymentIntent);
 
-// Get all transactions
-router.get("/transactions", getAllTransactions);
+router.post("/intent", verifyToken, createPaymentIntent);
+router.post("/update", verifyToken, updatePayment);
+router.get("/transactions", verifyToken, getAllTransactions);
 
 module.exports = router;
