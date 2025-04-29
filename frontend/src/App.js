@@ -18,6 +18,9 @@ import Menu from "./components/Menu";
 import MenuDetails from "./components/MenuDetails";
 
 //Restaurant Service
+import Sidebar from "./components/RestaurantOwner/SideBar";
+import Header from "./components/RestaurantOwner/Header";
+import RestuarantOwner from "./components/RestaurantOwner/RestuarantOwner";
 import RestaurantDash from "./components/ResturantDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
@@ -42,6 +45,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         
         {/*Restaurant Service*/}
+        
+        <Route path="/restaurantOwner" element={<RestuarantOwner />} />
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
         <Route path="/restaurants/:restaurantId/menu" element={<AddMenuItem />} />

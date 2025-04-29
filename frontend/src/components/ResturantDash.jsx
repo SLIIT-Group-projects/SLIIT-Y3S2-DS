@@ -103,7 +103,7 @@ function RestaurantDash() {
     if (error) return <div className="text-red-500">{error}</div>;
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="p-4 sm:p-6 md:p-10 flex-wrap bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-6">Restaurant Dashboard</h1>
 
             <div className="flex gap-2 mb-4">
