@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./SideBar";
 import RestaurantDash from "../ResturantDash";
+import MyRestaurants from "./MyRestaurants";
 
 const RestaurantOwner = () => {
     const [activeTab, setActiveTab] = useState("Dashboard");
@@ -18,11 +19,13 @@ const RestaurantOwner = () => {
         switch (activeTab) {
             case "Dashboard":
                 return <RestaurantDash />;
-                /*
-                case "Orders":
-                return <Orders />;
-            case "Product":
-                return <Products />;*/
+            /*
+            case "Orders":
+            return <Orders />;
+        case "Product":
+            return <Products />;*/
+            case "Restaurants":
+                return <MyRestaurants />;
             default:
                 return <RestaurantDash />;
         }
@@ -32,16 +35,15 @@ const RestaurantOwner = () => {
         <div className="flex flex-col h-screen bg-gray-100">
             <Header onLogout={handleLogout} />
             <div className="flex flex-1 overflow-hidden pt-16">
-                <Sidebar 
-                    activeTab={activeTab} 
+                <Sidebar
+                    activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     expanded={sidebarExpanded}
                     setExpanded={setSidebarExpanded}
                 />
-                <main 
-                    className={`flex-1 overflow-y-auto transition-all duration-300 ${
-                        sidebarExpanded ? "ml-64" : "ml-20"
-                    }`}
+                <main
+                    className={`flex-1 overflow-y-auto transition-all duration-300 ${sidebarExpanded ? "ml-64" : "ml-20"
+                        }`}
                 >
                     {renderContent()}
                 </main>

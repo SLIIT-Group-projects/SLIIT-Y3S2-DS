@@ -17,7 +17,7 @@ const Sidebar = ({ activeTab, setActiveTab, expanded, setExpanded }) => {
     { name: "Flash Sales", icon: FlashSalesIcon, path: "/flash-sales" },
     { name: "Orders", icon: OrdersIcon, path: "/orders" },
     { name: "Payments", icon: WithdrawalIcon, path: "/payments" },
-    { name: "Restaurants", icon: StoreIcon, path: "/restaurants" },
+    { name: "Restaurants", icon: StoreIcon, path: "/myRestaurants" },
   ];
 
   const handleClick = (item) => {

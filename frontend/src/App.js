@@ -24,7 +24,9 @@ import RestuarantOwner from "./components/RestaurantOwner/RestuarantOwner";
 import RestaurantDash from "./components/ResturantDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
-import EditMenuItem from "./components/RestaurantOwner/EditMenuItem";
+import EditMenuItem from "./components/RestaurantOwner/EditMenuItem"; 
+import MyRestaurants from "./components/RestaurantOwner/MyRestaurants";
+import EditRestaurant from "./components/RestaurantOwner/EditRestaurant";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -34,7 +36,7 @@ function App() {
       <Routes>
         <Route path="/register" element={<Register />} />
 
-       
+       {/*Restaurant Service -Customer side*/} 
         <Route path="/restaurants/:restaurantId/menuItems" element={<Menu />} />
         <Route path="/allRestaurants" element={<AllRestaurants />} />
         <Route path="/restaurants/:restaurantId/menu/:menuItemId" element={<MenuDetails />} />
@@ -44,13 +46,15 @@ function App() {
         
         <Route path="/login" element={<Login />} />
         
-        {/*Restaurant Service*/}
-        
+        {/*Restaurant Service -Admin*/}       
         <Route path="/restaurantOwner" element={<RestuarantOwner />} />
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
         <Route path="/restaurants/:restaurantId/menu" element={<AddMenuItem />} />
         <Route path="/menu/:id/edit" element={<EditMenuItem/>}/>
+        <Route path="/myRestaurants" element={<MyRestaurants />} />
+        <Route path="/restaurants/:restaurantId/edit" element={<EditRestaurant />} />
+
 
         <Route
           path="/home"
@@ -63,10 +67,10 @@ function App() {
           }
         />
         <Route
-          path="/restaurant"
+          path="/restaurantOwner"
           element={
             token && role === "restaurant" ? (
-              <RestaurantDash />
+              <RestuarantOwner />
             ) : (
               <Navigate to="/login" />
             )
