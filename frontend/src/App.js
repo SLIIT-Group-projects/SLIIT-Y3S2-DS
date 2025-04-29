@@ -23,6 +23,7 @@ import AdminRestaurantList from "./components/AdminDashboard/ResturantList"
 
 // toast msg
 import { Toaster } from "react-hot-toast";
+import AdminAllOrders from "./components/AdminDashboard/AllOrders";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
@@ -73,6 +74,7 @@ function App() {
         <Route path="/admin/users" element={<AllCustomers />} />
         <Route path="/admin/transactions" element={<TransactionList />} />
         <Route path="/admin/restaurants" element={<AdminRestaurantList />} />
+        <Route path="/admin/orders" element={<AdminAllOrders />} />
       </Routes>
     </Router>
   );

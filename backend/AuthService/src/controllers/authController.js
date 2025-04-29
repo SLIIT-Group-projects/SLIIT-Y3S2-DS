@@ -64,15 +64,12 @@ exports.getProfile = async (req, res) => {
 
 exports.getAllCustomers = async (req, res) => {
   try {
-    const customers = await User.find({ role: "customer" }).select("-password"); // exclude password
-    res.status(200).json(customers);
-  } catch (err) {
-    console.error("Error fetching customers:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    const users = await User.find().select("name email role");
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch users", error: error.message });
   }
 };
 
-// Get user by ID
-// In User Service src/routes/userRoute.js
 
 
