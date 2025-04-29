@@ -11,7 +11,7 @@ router.post("/add", verifyToken, cartController.addToCart);
 router.put("/update/:cartItemId", verifyToken, cartController.updateCartItemQuantity);
 router.get("/", verifyToken, cartController.getUserCart);
 router.delete("/:id", verifyToken, cartController.removeCartItem);
-router.delete("/", verifyToken, cartController.getUserCart);
+router.delete("/", verifyToken, cartController.clearCart);
 
 // get resturants
 router.get("/restaurants", verifyToken, cartController.getUserCartRestaurantDetails);

@@ -44,7 +44,6 @@ const orderSchema = new mongoose.Schema(
     address: {
       no: { type: String, required: true },
       street: { type: String, required: true },
-      mobileNumber: { type: String, required: true }, // New mobile number field
     },
     location: {
       longitude: { type: Number, required: true },
@@ -70,4 +69,3 @@ const orderSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Order", orderSchema);
-
