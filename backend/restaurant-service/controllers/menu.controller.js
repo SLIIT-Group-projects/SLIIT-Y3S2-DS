@@ -62,12 +62,12 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
 exports.getMenuItemById = async (req, res) => {
     try {
         const { menuItemId } = req.params;
-        
+
         const menuItem = await MenuItem.findById(menuItemId).populate('restaurantId');
         if (!menuItem) {
             return res.status(404).json({ message: 'Menu item not found' });
         }
-        
+
         res.status(200).json(menuItem);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving menu item', error });
