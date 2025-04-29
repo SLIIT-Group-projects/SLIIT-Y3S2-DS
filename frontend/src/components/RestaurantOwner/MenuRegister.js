@@ -1,21 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState , useEffect} from "react";
 import axios from "axios";
 
-function AddMenuItem() {
+ function AddMenuItem() {
   const [form, setForm] = useState({
+    restaurantId: "",
     name: "",
     description: "",
     price: "",
     category: "",
+    imageUrl: "",
     preparationTime: "",
     ingredients: "",
     dietaryTags: [],
-    cuisineType: "",
+    cuisineType: ""
   });
-
-  const [imagePreview, setImagePreview] = useState(null); // Store single image
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const storedRestaurantId = localStorage.getItem("restaurantId");
@@ -24,35 +22,10 @@ function AddMenuItem() {
     }
   }, []);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]; // Get only the first file
-    if (!file) return;
-
-    // Check if file is an image
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file (JPEG, PNG, etc.)");
-      return;
-    }
-
-    // Clear previous error
-    setError("");
-
-    // Create preview URL
-    const preview = URL.createObjectURL(file);
-    setImagePreview({ file, preview });
-  };
-
-  const removeImage = () => {
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview.preview); // Free memory
-      setImagePreview(null);
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "dietaryTags") {
-      setForm({ ...form, [name]: Array.from(e.target.selectedOptions, (opt) => opt.value) });
+      setForm({ ...form, [name]: Array.from(e.target.selectedOptions, opt => opt.value) });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -60,163 +33,43 @@ function AddMenuItem() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    const storedRestaurantId = localStorage.getItem("restaurantId");
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("No token found, please login again.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!storedRestaurantId) {
-      setError("No restaurant selected.");
-      setIsLoading(false);
-      return;
-    }
+    const data = {
+      ...form,
+      price: parseFloat(form.price),
+      preparationTime: parseInt(form.preparationTime),
+      ingredients: form.ingredients.split(',').map(i => i.trim())
+    };
 
     try {
-      const formData = new FormData();
-      formData.append("restaurantId", storedRestaurantId);
-      formData.append("name", form.name);
-      formData.append("description", form.description);
-      formData.append("price", form.price);
-      formData.append("category", form.category);
-      formData.append("preparationTime", form.preparationTime);
-      formData.append("ingredients", form.ingredients);
-      formData.append("cuisineType", form.cuisineType);
-
-      // Append dietary tags
-      form.dietaryTags.forEach((tag) => {
-        formData.append("dietaryTags", tag);
-      });
-
-      // Append the single image (if exists)
-      if (imagePreview) {
-        formData.append("image", imagePreview.file); // Match backend field name
-      }
-
-      const response = await axios.post(
-        "http://localhost:5004/api/menu-items",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      alert("Menu item added successfully!");
-      // Reset form after successful submission
-      setForm({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        preparationTime: "",
-        ingredients: "",
-        dietaryTags: [],
-        cuisineType: "",
-      });
-      removeImage(); // Clear image preview
+      const res = await axios.post('http://localhost:5004/api/menu-items', data);
+      alert('Menu item added!');
+      console.log(res.data);
     } catch (err) {
-      console.error("Error adding menu item:", err);
-      setError(err.response?.data?.message || "Failed to add menu item");
-    } finally {
-      setIsLoading(false);
+      console.error(err);
+      alert('Error adding item');
     }
   };
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Add Menu Item</h2>
-      {error && <div className="mb-4 p-2 text-red-600 bg-red-100 rounded">{error}</div>}
-
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-2 font-medium">Item Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full p-2 border rounded"
-          />
-          {imagePreview && (
-            <div className="mt-2 relative">
-              <img
-                src={imagePreview.preview}
-                alt="Preview"
-                className="h-48 w-full object-contain rounded border"
-              />
-              <button
-                type="button"
-                onClick={removeImage}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-              >
-                ×
-              </button>
-            </div>
-          )}
-        </div>
 
-        {/* Rest of the form fields remain the same */}
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Name"
-          className="w-full p-2 border rounded"
-          required
-        />
+        <input type="text" name="restaurantId" value={form.restaurantId} onChange={handleChange} readOnly className="w-full p-2 border rounded" required />
 
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-          className="w-full p-2 border rounded"
-        />
+        <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full p-2 border rounded" required />
 
-        <input
-          type="number"
-          name="price"
-          value={form.price}
-          onChange={handleChange}
-          placeholder="Price"
-          className="w-full p-2 border rounded"
-          required
-        />
+        <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" />
 
-        <input
-          type="number"
-          name="preparationTime"
-          value={form.preparationTime}
-          onChange={handleChange}
-          placeholder="Preparation Time (min)"
-          className="w-full p-2 border rounded"
-        />
+        <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Price" className="w-full p-2 border rounded" required />
 
-        <input
-          type="text"
-          name="ingredients"
-          value={form.ingredients}
-          onChange={handleChange}
-          placeholder="Ingredients (comma separated)"
-          className="w-full p-2 border rounded"
-        />
+        <input type="text" name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="Image URL" className="w-full p-2 border rounded" />
 
-        <select
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        >
+        <input type="number" name="preparationTime" value={form.preparationTime} onChange={handleChange} placeholder="Preparation Time (min)" className="w-full p-2 border rounded" />
+
+        <input type="text" name="ingredients" value={form.ingredients} onChange={handleChange} placeholder="Ingredients (comma separated)" className="w-full p-2 border rounded" />
+
+        <select name="category" value={form.category} onChange={handleChange} className="w-full p-2 border rounded" required>
           <option value="">Select Category</option>
           <option value="Appetizer">Appetizer</option>
           <option value="Main Course">Main Course</option>
@@ -232,13 +85,7 @@ function AddMenuItem() {
           <option value="Noodles">Noodles</option>
         </select>
 
-        <select
-          name="cuisineType"
-          value={form.cuisineType}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        >
+        <select name="cuisineType" value={form.cuisineType} onChange={handleChange} className="w-full p-2 border rounded" required>
           <option value="">Select Cuisine Type</option>
           <option value="Indian">Indian</option>
           <option value="Chinese">Chinese</option>
@@ -254,13 +101,7 @@ function AddMenuItem() {
           <option value="Sri Lankan">Sri Lankan</option>
         </select>
 
-        <select
-          multiple
-          name="dietaryTags"
-          value={form.dietaryTags}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        >
+        <select multiple name="dietaryTags" value={form.dietaryTags} onChange={handleChange} className="w-full p-2 border rounded">
           <option value="Vegetarian">Vegetarian</option>
           <option value="Vegan">Vegan</option>
           <option value="Gluten-Free">Gluten-Free</option>
@@ -268,15 +109,7 @@ function AddMenuItem() {
           <option value="Spicy">Spicy</option>
         </select>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-2 rounded text-white ${
-            isLoading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isLoading ? "Adding..." : "Add Item"}
-        </button>
+        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add Item</button>
       </form>
     </div>
   );

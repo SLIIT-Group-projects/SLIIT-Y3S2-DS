@@ -22,7 +22,7 @@ function Login() {
 
       switch (response.data.role) {
         case "customer":
-          navigate("/home");
+          navigate("/customer");
           break;
         case "restaurant":
           navigate("/restaurant");

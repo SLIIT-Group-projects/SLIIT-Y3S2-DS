@@ -28,11 +28,6 @@ const restaurantSchema = new mongoose.Schema({
         close: { type: String, required: true }
     }],
     isAvailable: { type: Boolean, default: true },
-    status: {
-        type: String,
-        enum: ['Pending', 'Approved', 'Rejected'],
-        default: 'Pending'
-    },
     ownerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
