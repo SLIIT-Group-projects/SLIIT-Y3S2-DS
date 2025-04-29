@@ -27,6 +27,10 @@ function DeliveryDash() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleHistory = () => {
+    navigate("/delivery-history");
+  };
+
   useEffect(() => {
     const upsateStatus = async () => {
       try {
@@ -72,7 +76,6 @@ function DeliveryDash() {
             Welcome, Delivery Personnel! You can accept and fulfill deliveries.
           </p>
         </div>
-        <div className="min-w-[25%] border border-black">sdadsasdada</div>
 
         <div className="bg-white rounded-2xl shadow-md min-w-[30%] py-2 px-4 flex">
           <div ref={menuRef} className="relative">
@@ -166,7 +169,7 @@ function DeliveryDash() {
         </div>
       </div>
       <div className="flex gap-4 mt-4">
-        <div className="flex flex-col w-1/5 border  border-black">
+        <div className="flex flex-col w-1/5">
           <div className="flex bg-white gap-2 mt-4 px-4 py-4 text-lg rounded-2xl shadow-md">
             <div>
               <svg
@@ -230,11 +233,36 @@ function DeliveryDash() {
               />
             </div>
           </div>
+          <div
+            className="flex justify-between bg-gray-700 text-white gap-2 mt-4 px-4 py-4 text-lg rounded-2xl shadow-md cursor-pointer hover:bg-gray-800"
+            onClick={handleHistory}
+          >
+            <div className=" text-xl font-semibold">Delivey History</div>
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-square-arrow-out-up-right-icon lucide-square-arrow-out-up-right"
+              >
+                <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
+                <path d="m21 3-9 9" />
+                <path d="M15 3h6v6" />
+              </svg>
+            </div>
+          </div>
         </div>
-        <div className="w-[30%] border border-black h-[400px] overflow-y-auto">
+        <div className="w-[30%] h-[400px] overflow-y-auto">
+          <div className="font-semibold text-2xl py-2">Current Deliveries</div>
           <Currentdeliveries />
         </div>
-        <div className="w-[50%] border border-black h-[400px] overflow-y-auto">
+        <div className="w-[50%] h-[400px] overflow-y-auto">
           {isOnline ? (
             <DeliveryList />
           ) : (

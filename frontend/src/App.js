@@ -13,6 +13,7 @@ import AdminDash from "./components/adminDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 import DeliveryRoutes from "./routes/DeliveryRoutes";
+import CustomerTrackingScreen from "./components/deliveryComponents/CustomerTrackingScreen";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -55,6 +56,10 @@ function App() {
           element={
             token && role === "admin" ? <AdminDash /> : <Navigate to="/login" />
           }
+        />
+        <Route
+          path="/track-driver/:deliveryId"
+          element={<CustomerTrackingScreen />}
         />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

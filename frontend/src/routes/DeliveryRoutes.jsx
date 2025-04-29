@@ -3,6 +3,8 @@ import DeliveryDash from "../components/deliveryDash";
 import DeliveryDriverUpdateForm from "../components/deliveryComponents/DeliveryDriverUpdateForm";
 import DeliveryDriverForm from "../components/deliveryComponents/deliveryDriverForm";
 import DeliveryScreen from "../components/deliveryComponents/DeliveryScreen";
+import SignaturePad from "../components/deliveryComponents/SignaturePad";
+import DeliveryHistory from "../components/deliveryComponents/DeliveryHistory";
 
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role");
@@ -48,6 +50,18 @@ export default function DeliveryRoutes() {
           ) : (
             <Navigate to="/login" />
           )
+        }
+      />
+      <Route
+        path="/get-signature/:id"
+        element={
+          token && role === "delivery" ? <SignaturePad /> : <DeliveryScreen />
+        }
+      />
+      <Route
+        path="/delivery-history"
+        element={
+          token && role === "delivery" ? <DeliveryHistory /> : <DeliveryDash />
         }
       />
     </>

@@ -1,4 +1,5 @@
 const DeliveryOrder = require("../models/DeliveryOrders");
+const DeliveryPerson = require("../models/DeliveryPerson");
 
 // 1. Accept Delivery (Create DeliveryOrder)
 exports.acceptDelivery = async (req, res) => {
@@ -35,14 +36,21 @@ exports.acceptDelivery = async (req, res) => {
   }
 };
 
-// 2. Pick Up Order (Mark as PickedUp)
 exports.pickupDelivery = async (req, res) => {
   try {
     const id = req.params.id; // deliveryOrder id
+    const { status } = req.body; // get status from request body
+
+    const updateData = { status };
+
+    // Only set pickedUpAt if status is PickedUp
+    if (status === "PickedUp") {
+      updateData.pickedUpAt = new Date();
+    }
 
     const updatedDelivery = await DeliveryOrder.findByIdAndUpdate(
       id,
-      { status: "PickedUp", pickedUpAt: new Date() },
+      updateData,
       { new: true }
     );
 
@@ -54,34 +62,6 @@ exports.pickupDelivery = async (req, res) => {
   } catch (error) {
     console.error("Pickup Delivery Error:", error);
     res.status(500).json({ message: "Failed to pickup delivery." });
-  }
-};
-
-// 3. Complete Delivery (Mark as Delivered)
-exports.completeDelivery = async (req, res) => {
-  try {
-    const { id } = req.params; // deliveryOrder id
-    const { proofPhotos, customerSignature } = req.body;
-
-    const updatedDelivery = await DeliveryOrder.findByIdAndUpdate(
-      id,
-      {
-        status: "Delivered",
-        deliveredAt: new Date(),
-        proofPhotos,
-        customerSignature,
-      },
-      { new: true }
-    );
-
-    if (!updatedDelivery) {
-      return res.status(404).json({ message: "Delivery order not found." });
-    }
-
-    res.status(200).json(updatedDelivery);
-  } catch (error) {
-    console.error("Complete Delivery Error:", error);
-    res.status(500).json({ message: "Failed to complete delivery." });
   }
 };
 
@@ -99,6 +79,22 @@ exports.getDeliveryById = async (req, res) => {
   } catch (error) {
     console.error("Get Delivery Error:", error);
     res.status(500).json({ message: "Failed to get delivery order." });
+  }
+};
+
+//get all deliveries
+exports.getAllDeliveries = async (req, res) => {
+  try {
+    const driverId = req.user.id;
+
+    const deliveries = await DeliveryOrder.find({ driverId }).sort({
+      deliveredAt: -1,
+    });
+
+    res.status(200).json({ data: deliveries });
+  } catch (error) {
+    console.error("Get Current Deliveries Error:", error);
+    res.status(500).json({ message: "Failed to get current deliveries." });
   }
 };
 
@@ -157,5 +153,58 @@ exports.cancelDelivery = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error." });
+  }
+};
+
+//complete delivery
+exports.completeDeliveryOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { customerSignature } = req.body;
+
+    const deliveryOrder = await DeliveryOrder.findById(id);
+
+    if (!deliveryOrder) {
+      return res.status(404).json({ message: "Delivery order not found" });
+    }
+
+    const deliveredAt = new Date(); // Current time
+    const acceptedAt = deliveryOrder.acceptedAt;
+
+    if (!acceptedAt) {
+      return res
+        .status(400)
+        .json({ message: "Cannot calculate actual time. Missing acceptedAt." });
+    }
+
+    // Calculate actual time in minutes
+    const actualTime = Math.ceil((deliveredAt - acceptedAt) / (1000 * 60)); // converting milliseconds to minutes
+
+    // Update the order
+    deliveryOrder.deliveredAt = deliveredAt;
+    deliveryOrder.actualTime = actualTime;
+    deliveryOrder.customerSignature = customerSignature;
+    deliveryOrder.status = "Delivered";
+
+    await deliveryOrder.save();
+
+    const deliveryPersonId = deliveryOrder.driverId;
+    const deliveryCharge = deliveryOrder.deliveryCharge;
+
+    const deliveryPerson = await DeliveryPerson.findOne({
+      userId: deliveryPersonId,
+    });
+    if (deliveryPerson) {
+      deliveryPerson.totalDeliveries += 1;
+      deliveryPerson.totalEarnings += deliveryCharge;
+      await deliveryPerson.save();
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Delivery completed successfully", deliveryOrder });
+  } catch (error) {
+    console.error("Error completing delivery:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

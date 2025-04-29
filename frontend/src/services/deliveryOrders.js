@@ -77,14 +77,14 @@ export const allCurrentDeliveries = async () => {
 };
 
 // update delivery status (pickup)
-export const updateStatusPickup = async (deliveryId, orderId) => {
+export const updateStatusPickup = async (deliveryId, orderId, status) => {
   try {
     const token = localStorage.getItem("token");
 
     const res = await axios.put(
       // <-- added await here
       `http://localhost:5002/api/delivery-orders/pickup/${deliveryId}`,
-      {}, // <-- empty body (no data to send)
+      { status: status }, // <-- empty body (no data to send)
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ export const updateStatusPickup = async (deliveryId, orderId) => {
     await axios.put(
       `http://localhost:5003/api/order/${orderId}/status`,
 
-      { status: "PickedUp" },
+      { status: status },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -126,5 +126,63 @@ export const getDeliveryById = async (deliveryId) => {
   } catch (error) {
     console.error("Error fetching delivery by ID:", error);
     throw error.response?.data?.message || "Something went wrong";
+  }
+};
+
+export const completeDelivery = async (
+  deliveryId,
+  customerSignature,
+  orderId
+) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.put(
+      `http://localhost:5002/api/delivery-orders/complete/${deliveryId}`,
+      {
+        customerSignature,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    await axios.put(
+      `http://localhost:5003/api/order/${orderId}/status`,
+
+      { status: "Delivered" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(res.data.message);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to complete delivery:", error.response.data);
+  }
+};
+
+export const getAllDeliveries = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(
+      `http://localhost:5002/api/delivery-orders/history`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("Fetched deliveries:", res.data.data);
+    return res.data.data;
+  } catch (error) {
+    console.error(
+      "Failed to fetch deliveries:",
+      error?.response?.data || error.message
+    );
+    return null;
   }
 };

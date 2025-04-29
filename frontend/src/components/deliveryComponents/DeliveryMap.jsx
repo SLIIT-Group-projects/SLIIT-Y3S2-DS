@@ -8,11 +8,19 @@ import {
   Polyline,
 } from "react-leaflet";
 import L from "leaflet";
+import "leaflet-routing-machine";
+
+const driverIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [35, 35],
+  iconAnchor: [17, 35],
+  popupAnchor: [0, -30],
+});
 
 const DeliveryMap = ({ location }) => {
   const pickupLocation = [
     location.pickupLocation.latitude,
-    location.dropoffLocation.longitude,
+    location.pickupLocation.longitude,
   ];
   const dropoffLocation = [
     location.dropoffLocation.latitude,
@@ -20,10 +28,21 @@ const DeliveryMap = ({ location }) => {
   ];
   const [driverPosition, setDriverPosition] = useState(null);
   const [route, setRoute] = useState([]);
+  const [distance, setDistance] = useState(null);
+  const [duration, setDuration] = useState(null);
+
+  // Custom Hook to access and modify the map
+  const ScrollZoomOff = () => {
+    const map = useMap();
+    useEffect(() => {
+      map.scrollWheelZoom.disable();
+    }, [map]);
+    return null;
+  };
+
   const map = useMap();
 
   useEffect(() => {
-    // Get the driver's current position
     const getDriverLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -40,36 +59,35 @@ const DeliveryMap = ({ location }) => {
       }
     };
 
-    // Call the function once when the component mounts
     getDriverLocation();
-
-    // Optionally, update the position every 5 seconds (or based on your need)
     const interval = setInterval(getDriverLocation, 5000);
 
-    // Cleanup the interval when the component unmounts
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Create and add the route when location changes
     if (location) {
       const routeControl = L.Routing.control({
         waypoints: [
           L.latLng(
             location.pickupLocation.latitude,
-            location.dropoffLocation.longitude
-          ), // Pickup location
+            location.pickupLocation.longitude
+          ),
           L.latLng(
             location.dropoffLocation.latitude,
             location.dropoffLocation.longitude
-          ), // Drop-off location
+          ),
         ],
         routeWhileDragging: true,
         show: false,
         collapsible: true,
+        addWaypoints: false,
       })
         .on("routesfound", (e) => {
-          setRoute(e.routes[0].coordinates);
+          const route = e.routes[0];
+          setRoute(route.coordinates);
+          setDistance(route.summary.totalDistance);
+          setDuration(route.summary.totalTime);
         })
         .addTo(map);
 
@@ -81,36 +99,56 @@ const DeliveryMap = ({ location }) => {
     }
   }, [location, map]);
 
+  const formatDistance = (meters) => {
+    return meters >= 1000
+      ? (meters / 1000).toFixed(2) + " km"
+      : meters + " meters";
+  };
+
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const hrs = Math.floor(mins / 60);
+    if (hrs > 0) {
+      return `${hrs}h ${mins % 60}min`;
+    }
+    return `${mins} min`;
+  };
+
   return (
-    <MapContainer
-      center={pickupLocation}
-      zoom={13}
-      style={{ height: "500px", width: "100%" }}
-    >
+    <>
+      <ScrollZoomOff />
+
+      <div className="absolute bottom-2 left-2 bg-gray-700 text-white p-2 rounded-md shadow-md z-[1000] text-lg">
+        {distance && duration && (
+          <div>
+            Distance: {formatDistance(distance)} | ETA:{" "}
+            {formatDuration(duration)}
+          </div>
+        )}
+      </div>
+
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
+
       <Marker position={pickupLocation}>
         <Popup>
-          {location.pickupAddress.name} <br /> {location.dropofAddress.street}
+          {location.pickupAddress.name} <br /> {location.pickupAddress.street}
         </Popup>
       </Marker>
-
       <Marker position={dropoffLocation}>
         <Popup>
-          {location.pickupAddress.name} <br /> {location.dropofAddress.street}
+          {location.dropofAddress.no} <br /> {location.dropofAddress.street}
         </Popup>
       </Marker>
-
       {driverPosition && (
-        <Marker position={driverPosition}>
+        <Marker position={driverPosition} icon={driverIcon}>
           <Popup>Driver's Current Location</Popup>
         </Marker>
       )}
-
       {route.length > 0 && <Polyline positions={route} color="blue" />}
-    </MapContainer>
+    </>
   );
 };
 

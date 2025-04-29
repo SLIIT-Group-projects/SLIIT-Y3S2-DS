@@ -77,7 +77,12 @@ const Currentdeliveries = () => {
           ))}
         </div>
       ) : (
-        <div>you dont have deliveries dummy.....</div>
+        <div className="flex flex-col justify-center items-center h-64 space-y-2">
+          <div className="text-4xl">📦</div>
+          <div className="text-gray-500 text-lg font-semibold">
+            You don't have any deliveries yet...
+          </div>
+        </div>
       )}
     </div>
   );
