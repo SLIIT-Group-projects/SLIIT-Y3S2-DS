@@ -8,7 +8,6 @@ import Register from "./components/Register";
 import Login from "./components/login";
 import RestaurantDash from "./components/ResturantDash";
 import AdminDash from "./components/adminDash";
-import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 import DeliveryRoutes from "./routes/DeliveryRoutes";
 import CustomerTrackingScreen from "./components/deliveryComponents/CustomerTrackingScreen";
@@ -32,12 +31,13 @@ import AdminAllOrders from "./components/AdminDashboard/AllOrders";
 import Sidebar from "./components/RestaurantOwner/SideBar";
 import Header from "./components/RestaurantOwner/Header";
 import RestuarantOwner from "./components/RestaurantOwner/RestuarantOwner";
-import RestaurantDash from "./components/ResturantDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
 import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
 import EditMenuItem from "./components/RestaurantOwner/EditMenuItem"; 
 import MyRestaurants from "./components/RestaurantOwner/MyRestaurants";
 import EditRestaurant from "./components/RestaurantOwner/EditRestaurant";
+import Home from "./components/Home";
+
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
@@ -46,7 +46,8 @@ function App() {
     <Router>
       <Toaster position="top-center" />
       <Routes>
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register />} />]
+        <Route path="/home" element={<Home/>} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/payment" element={<PaymentForm />} />

@@ -1,17 +1,106 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function RestaurantDash() {
+    const [restaurants, setRestaurants] = useState([]);
+    const [menuItems, setMenuItems] = useState([]);
+    const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
     const navigate = useNavigate();
-    
+
+    // Fetch restaurants on component mount
+    useEffect(() => {
+        const fetchRestaurants = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const restaurantsRes = await axios.get('http://localhost:5004/api/restaurants/my', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                setRestaurants(restaurantsRes.data);
+
+                if (restaurantsRes.data.length > 0) {
+                    setSelectedRestaurant(restaurantsRes.data[0]);
+                }
+
+                setLoading(false);
+            } catch (err) {
+                setError(err.response?.data.message || 'Failed to fetch restaurants');
+                setLoading(false);
+            }
+        };
+
+        fetchRestaurants();
+    }, []);
+
+    // Fetch menu items when selected restaurant changes
+    useEffect(() => {
+        const fetchMenuItems = async () => {
+            if (!selectedRestaurant) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const menuRes = await axios.get(
+                    `http://localhost:5004/api/menu-items/restaurants/${selectedRestaurant._id}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setMenuItems(menuRes.data);
+            } catch (err) {
+                setError(err.response?.data.message || 'Failed to fetch menu items');
+            }
+        };
+
+        fetchMenuItems();
+    }, [selectedRestaurant]);
+
     const handleLogout = () => {
-      localStorage.clear();
-      window.location.href = "/login";
+        localStorage.clear();
+        window.location.href = "/login";
     };
-  
-    const addMenu = () => {
-      navigate("/add-menuItems");
-    }
+
+    const handleRestaurantSelect = (restaurant) => {
+        setSelectedRestaurant(restaurant);
+    };
+
+    const addMenuItem = (restaurantId, e) => {
+        e.stopPropagation();
+        localStorage.setItem("restaurantId", restaurantId);
+        navigate(`/restaurants/${restaurantId}/menu`);
+    };
+
+    const confirmDelete = (item) => {
+        setItemToDelete(item);
+        setShowDeleteModal(true);
+    };
+
+    const handleDelete = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`http://localhost:5004/api/menu-items/${itemToDelete._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            // Refresh the menu items after deletion
+            const menuRes = await axios.get(
+                `http://localhost:5004/api/menu-items/restaurants/${selectedRestaurant._id}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setMenuItems(menuRes.data);
+            
+            setShowDeleteModal(false);
+        } catch (err) {
+            console.error("Error deleting menu item", err);
+            alert("Failed to delete menu item");
+            setShowDeleteModal(false);
+        }
+    };
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div className="text-red-500">{error}</div>;
 
     return (
         <div className="p-4 sm:p-6 md:p-10 flex-wrap bg-gray-100 min-h-screen">
@@ -148,5 +237,5 @@ function RestaurantDash() {
         </div>
     );
 }
-  
+
 export default RestaurantDash;

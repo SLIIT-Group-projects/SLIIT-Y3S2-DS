@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import deleteButton from '../../assets/deleteButton.png';
+import { useNavigate } from 'react-router-dom';
 
 function RestaurantRegister() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -13,22 +15,67 @@ function RestaurantRegister() {
             district: '',
             postalCode: '',
             latitude: '',
-            longitude: ''
+            longitude: '',
         },
         contact: {
             phone: '',
-            email: ''
+            email: '',
         },
         openingHours: [],
         isAvailable: true,
-        ownerId: '',
         cuisineType: '',
-        imageUrl: '',
         currentLocation: {
             lat: '',
-            lng: ''
-        }
+            lng: '',
+        },
     });
+
+    const [imagePreview, setImagePreview] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    // Remove ownerId from state since we'll get it from the token
+
+    useEffect(() => {
+        // Check if user is logged in and has restaurant role
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+
+        if (!token || role !== 'restaurant') {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setError("Please upload a valid image file (JPEG, PNG, etc.)");
+            return;
+        }
+
+        setError("");
+        const preview = URL.createObjectURL(file);
+        setImagePreview({ file, preview });
+
+        setFormData(prev => ({
+            ...prev,
+            image: file, // Save file to formData
+        }));
+    };
+
+    // Remove image
+    const removeImage = () => {
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview.preview);
+            setImagePreview(null);
+
+            setFormData(prev => ({
+                ...prev,
+                image: null,
+            }));
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -71,7 +118,6 @@ function RestaurantRegister() {
         setFormData(prev => ({ ...prev, openingHours: newOpeningHours }));
     };
 
-
     const addOpeningHour = () => {
         setFormData(prev => ({
             ...prev,
@@ -81,31 +127,95 @@ function RestaurantRegister() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+    
         try {
-            // Convert lat/lng and latitude/longitude to numbers before sending
-            const dataToSend = {
-                ...formData,
-                address: {
-                    ...formData.address,
-                    latitude: parseFloat(formData.address.latitude),
-                    longitude: parseFloat(formData.address.longitude)
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                navigate('/login');
+                return;
+            }
+    
+            // Validate required fields
+            const requiredFields = [
+                formData.name,
+                formData.description,
+                formData.cuisineType,
+                formData.contact.phone,
+                formData.contact.email,
+                formData.currentLocation.lat,
+                formData.currentLocation.lng,
+                formData.address.buildingNumber,
+                formData.address.street,
+                formData.address.city,
+                formData.address.postalCode
+            ];
+    
+            if (requiredFields.some(field => !field)) {
+                throw new Error('Please fill all required fields');
+            }
+    
+            const formDataToSend = new FormData();
+            
+            // Append basic fields
+            formDataToSend.append('name', formData.name);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('cuisineType', formData.cuisineType);
+            formDataToSend.append('isAvailable', formData.isAvailable.toString());
+    
+            // Append address fields with proper nesting
+            Object.entries(formData.address).forEach(([key, value]) => {
+                formDataToSend.append(`address[${key}]`, value);
+            });
+    
+            // Append contact fields with proper nesting
+            Object.entries(formData.contact).forEach(([key, value]) => {
+                formDataToSend.append(`contact[${key}]`, value);
+            });
+    
+            // Append current location
+            formDataToSend.append('currentLocation[lat]', formData.currentLocation.lat);
+            formDataToSend.append('currentLocation[lng]', formData.currentLocation.lng);
+    
+            // Append opening hours as array
+            formData.openingHours.forEach((hour, index) => {
+                formDataToSend.append(`openingHours[${index}][day]`, hour.day);
+                formDataToSend.append(`openingHours[${index}][open]`, hour.open);
+                formDataToSend.append(`openingHours[${index}][close]`, hour.close);
+            });
+    
+            // Append image if exists
+            if (formData.image) {
+                formDataToSend.append('image', formData.image);
+            }
+    
+            // Debug: Log form data before sending
+            for (let [key, value] of formDataToSend.entries()) {
+                console.log(key, value);
+            }
+    
+            await axios.post('http://localhost:5004/api/restaurants', formDataToSend, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
                 },
-                currentLocation: {
-                    lat: parseFloat(formData.currentLocation.lat),
-                    lng: parseFloat(formData.currentLocation.lng)
-                }
-            };
-
-            await axios.post('http://localhost:5004/api/restaurants', dataToSend);
-            alert("Restaurant added successfully");
-
-            //regirect to login
-            window.location.href = '/login';
+            });
+    
+            alert('Restaurant added successfully!');
+            navigate('/restaurant-dashboard');
         } catch (err) {
-            console.error(err);
-            alert("Error adding restaurant");
+            console.error('Registration error:', err);
+            alert(err.response?.data?.message || err.message || "Error adding restaurant");
+        } finally {
+            setIsLoading(false);
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview.preview);
+                setImagePreview(null);
+            }
         }
     };
+
 
     return (
         <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-inter">
@@ -156,16 +266,21 @@ function RestaurantRegister() {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
+                            {/* Image Upload */}
                             <div>
-                                <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Logo URL
-                                </label>
-                                <input
-                                    name="imageUrl"
-                                    placeholder="Image URL"
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Upload Logo</label>
+                                <input 
+                                type="file" 
+                                name="image"
+                                accept="image/*" 
+                                onChange={handleImageChange} 
+                                className="w-full" />
+                                {imagePreview && (
+                                    <div className="mt-2">
+                                        <img src={imagePreview.preview} alt="Preview" className="h-24 object-cover" />
+                                        <button type="button" onClick={removeImage} className="text-red-500 mt-1">Remove Image</button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -284,17 +399,7 @@ function RestaurantRegister() {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Owner ID
-                                </label>
-                                <input
-                                    name="ownerId"
-                                    placeholder="Owner ID"
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
+
                         </div>
 
                         {/* Opening Hours */}
