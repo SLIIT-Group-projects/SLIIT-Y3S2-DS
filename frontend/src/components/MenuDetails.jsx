@@ -22,7 +22,7 @@ const MenuDetails = () => {
                 setError(null);
                 
                 const menuItemRes = await axios.get(
-                    `http://localhost:5004/api/menu-items/${menuItemId}`
+                   ` http://localhost:5004/api/menu-items/${menuItemId}`
                 );
                 
                 if (!menuItemRes.data) {
@@ -305,8 +305,3 @@ const MenuDetails = () => {
 };
 
 export default MenuDetails;
-
-
-
-
-

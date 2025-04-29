@@ -28,7 +28,7 @@ function Login() {
           navigate("/customer");
           break;
         case "restaurant":
-          navigate("/restaurant");
+          navigate("/restaurantOwner");
           break;
         case "delivery":
           navigate("/delivery");

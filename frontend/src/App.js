@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/login";
-import CustomerDash from "./components/customerDash";
 import RestaurantDash from "./components/ResturantDash";
 import AdminDash from "./components/adminDash";
 import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
@@ -29,6 +28,16 @@ import AdminRestaurantList from "./components/AdminDashboard/ResturantList"
 // toast msg
 import { Toaster } from "react-hot-toast";
 import AdminAllOrders from "./components/AdminDashboard/AllOrders";
+//Restaurant Service
+import Sidebar from "./components/RestaurantOwner/SideBar";
+import Header from "./components/RestaurantOwner/Header";
+import RestuarantOwner from "./components/RestaurantOwner/RestuarantOwner";
+import RestaurantDash from "./components/ResturantDash";
+import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
+import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
+import EditMenuItem from "./components/RestaurantOwner/EditMenuItem"; 
+import MyRestaurants from "./components/RestaurantOwner/MyRestaurants";
+import EditRestaurant from "./components/RestaurantOwner/EditRestaurant";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
@@ -42,25 +51,27 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/payment" element={<PaymentForm />} />
 
+       {/*Restaurant Service -Customer side*/} 
+        <Route path="/restaurants/:restaurantId/menuItems" element={<Menu />} />
+        <Route path="/allRestaurants" element={<AllRestaurants />} />
+        <Route path="/restaurants/:restaurantId/menu/:menuItemId" element={<MenuDetails />} />
+        
+        {/*Restaurant Service -Admin*/}       
+        <Route path="/restaurantOwner" element={<RestuarantOwner />} />
+
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
-        <Route path="/add-menuItems" element={<MenuRegister />} />
+        <Route path="/restaurants/:restaurantId/menu" element={<AddMenuItem />} />
+        <Route path="/menu/:id/edit" element={<EditMenuItem/>}/>
+        <Route path="/myRestaurants" element={<MyRestaurants />} />
+        <Route path="/restaurants/:restaurantId/edit" element={<EditRestaurant />} />
+
 
         <Route
-          path="/customer"
-          element={
-            token && role === "customer" ? (
-              <CustomerDash />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/restaurant"
+          path="/restaurantOwner"
           element={
             token && role === "restaurant" ? (
-              <RestaurantDash />
+              <RestuarantOwner />
             ) : (
               <Navigate to="/login" />
             )
