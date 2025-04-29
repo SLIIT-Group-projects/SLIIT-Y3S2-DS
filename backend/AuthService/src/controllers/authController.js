@@ -26,7 +26,23 @@ exports.register = async (req, res) => {
     });
 
     await user.save();
+
+    // If registering as restaurant, return restaurant token
+    if (role === 'restaurant') {
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+      return res.status(201).json({ 
+        message: "Restaurant user registered", 
+        token,
+        role: user.role
+      });
+    }
+    
     res.status(201).json({ message: "User registered" });
+
   } catch (err) {
     console.log("Register Error:", err);
     res.status(500).json({ message: "Server error" });
@@ -54,6 +70,7 @@ exports.login = async (req, res) => {
     responseData.restaurantId = user._id;
   }
 
+ 
   res.json(responseData);
 };
 

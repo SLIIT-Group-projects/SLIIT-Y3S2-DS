@@ -22,7 +22,7 @@ function Register() {
  
 
       if (role === "restaurant") {
-        navigate("/restaurant-register");
+        navigate("/login");
       } else {
         navigate("/login");
       }

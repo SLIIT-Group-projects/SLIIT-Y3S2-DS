@@ -1,142 +1,185 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
-function AddMenuItem() {
+function EditMenuItem() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     category: "",
+    isAvailable: true,
     preparationTime: "",
     ingredients: "",
     dietaryTags: [],
-    cuisineType: "",
+    cuisineType: ""
   });
-
-  const [imagePreview, setImagePreview] = useState(null); // Store single image
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedRestaurantId = localStorage.getItem("restaurantId");
-    if (storedRestaurantId) {
-      setForm((prevForm) => ({ ...prevForm, restaurantId: storedRestaurantId }));
+    // In your fetchMenuItem function inside useEffect:
+const fetchMenuItem = async () => {
+  try {
+    setIsLoading(true);
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`http://localhost:5004/api/menu-items/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    const item = res.data;
+    setForm({
+      name: item.name,
+      description: item.description,
+      price: item.price.toString(),
+      category: item.category,
+      isAvailable: item.isAvailable,
+      preparationTime: item.preparationTime?.toString() || "",
+      ingredients: item.ingredients?.join(", ") || "",
+      dietaryTags: item.dietaryTags || [],
+      cuisineType: item.cuisineType
+    });
+    
+    // Set image preview - ensure the URL is properly formatted
+    if (item.imageUrl) {
+      // Check if it's a Cloudinary URL or needs modification
+      const previewUrl = item.imageUrl.startsWith('http') ? 
+        item.imageUrl : 
+        `http://localhost:5004/${item.imageUrl}`;
+      setImagePreview(previewUrl);
     }
-  }, []);
+  } catch (err) {
+    console.error("Failed to fetch menu item", err);
+    setError("Failed to load menu item");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]; // Get only the first file
-    if (!file) return;
-
-    // Check if file is an image
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file (JPEG, PNG, etc.)");
-      return;
-    }
-
-    // Clear previous error
-    setError("");
-
-    // Create preview URL
-    const preview = URL.createObjectURL(file);
-    setImagePreview({ file, preview });
-  };
-
-  const removeImage = () => {
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview.preview); // Free memory
-      setImagePreview(null);
-    }
-  };
+    fetchMenuItem();
+  }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "dietaryTags") {
-      setForm({ ...form, [name]: Array.from(e.target.selectedOptions, (opt) => opt.value) });
+    const { name, value, type, checked } = e.target;
+    
+    if (type === "checkbox") {
+      setForm({ ...form, [name]: checked });
+    } else if (name === "dietaryTags") {
+      setForm({ ...form, [name]: Array.from(e.target.selectedOptions, opt => opt.value) });
     } else {
       setForm({ ...form, [name]: value });
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file (JPEG, PNG, etc.)");
+      return;
+    }
+
+    setError("");
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    URL.revokeObjectURL(imagePreview);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-
-    const storedRestaurantId = localStorage.getItem("restaurantId");
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("No token found, please login again.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!storedRestaurantId) {
-      setError("No restaurant selected.");
-      setIsLoading(false);
-      return;
-    }
-
+  
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+  
       const formData = new FormData();
-      formData.append("restaurantId", storedRestaurantId);
       formData.append("name", form.name);
       formData.append("description", form.description);
       formData.append("price", form.price);
       formData.append("category", form.category);
+      formData.append("isAvailable", form.isAvailable);
       formData.append("preparationTime", form.preparationTime);
       formData.append("ingredients", form.ingredients);
       formData.append("cuisineType", form.cuisineType);
-
+      
       // Append dietary tags
-      form.dietaryTags.forEach((tag) => {
+      form.dietaryTags.forEach(tag => {
         formData.append("dietaryTags", tag);
       });
-
-      // Append the single image (if exists)
-      if (imagePreview) {
-        formData.append("image", imagePreview.file); // Match backend field name
+  
+      // Append image if it's a new file
+      if (imageFile) {
+        formData.append("image", imageFile);
       }
-
-      const response = await axios.post(
-        "http://localhost:5004/api/menu-items",
+  
+      await axios.put(
+        `http://localhost:5004/api/menu-items/${id}`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-
-      alert("Menu item added successfully!");
-      // Reset form after successful submission
-      setForm({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        preparationTime: "",
-        ingredients: "",
-        dietaryTags: [],
-        cuisineType: "",
-      });
-      removeImage(); // Clear image preview
+  
+      alert("Menu item updated successfully!");
+      navigate(-1);
     } catch (err) {
-      console.error("Error adding menu item:", err);
-      setError(err.response?.data?.message || "Failed to add menu item");
+      console.error("Error updating menu item:", err);
+      setError(err.response?.data?.message || "Failed to update menu item");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this menu item?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:5004/api/menu-items/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      alert("Menu item deleted successfully!");
+      navigate("/restaurant-dash");
+    } catch (err) {
+      console.error("Error deleting menu item:", err);
+      setError("Failed to delete menu item");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading menu item...</div>;
+  }
+
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Add Menu Item</h2>
-      {error && <div className="mb-4 p-2 text-red-600 bg-red-100 rounded">{error}</div>}
+      <h2 className="text-2xl font-bold mb-6 text-center">Edit Menu Item</h2>
+      
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Image Upload Section */}
         <div>
           <label className="block mb-2 font-medium">Item Image</label>
           <input
@@ -148,8 +191,8 @@ function AddMenuItem() {
           {imagePreview && (
             <div className="mt-2 relative">
               <img
-                src={imagePreview.preview}
-                alt="Preview"
+                src={imagePreview}
+                alt="Menu item preview"
                 className="h-48 w-full object-contain rounded border"
               />
               <button
@@ -163,7 +206,7 @@ function AddMenuItem() {
           )}
         </div>
 
-        {/* Rest of the form fields remain the same */}
+        {/* Form Fields */}
         <input
           type="text"
           name="name"
@@ -180,6 +223,7 @@ function AddMenuItem() {
           onChange={handleChange}
           placeholder="Description"
           className="w-full p-2 border rounded"
+          rows="3"
         />
 
         <input
@@ -190,6 +234,8 @@ function AddMenuItem() {
           placeholder="Price"
           className="w-full p-2 border rounded"
           required
+          min="0"
+          step="0.01"
         />
 
         <input
@@ -197,8 +243,9 @@ function AddMenuItem() {
           name="preparationTime"
           value={form.preparationTime}
           onChange={handleChange}
-          placeholder="Preparation Time (min)"
+          placeholder="Preparation Time (minutes)"
           className="w-full p-2 border rounded"
+          min="0"
         />
 
         <input
@@ -268,18 +315,40 @@ function AddMenuItem() {
           <option value="Spicy">Spicy</option>
         </select>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-2 rounded text-white ${
-            isLoading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isLoading ? "Adding..." : "Add Item"}
-        </button>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="isAvailable"
+            name="isAvailable"
+            checked={form.isAvailable}
+            onChange={handleChange}
+            className="mr-2 h-5 w-5"
+          />
+          <label htmlFor="isAvailable" className="text-gray-700">
+            Currently Available
+          </label>
+        </div>
+
+        <div className="flex justify-between pt-4">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded transition duration-200"
+            disabled={isLoading}
+          >
+            Delete Item
+          </button>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded transition duration-200"
+            disabled={isLoading}
+          >
+            {isLoading ? "Updating..." : "Update Item"}
+          </button>
+        </div>
       </form>
     </div>
   );
 }
 
-export default AddMenuItem;
+export default EditMenuItem;

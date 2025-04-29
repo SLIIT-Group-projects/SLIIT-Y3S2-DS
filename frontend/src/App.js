@@ -8,13 +8,24 @@ import {
 import Register from "./components/Register";
 import Login from "./components/login";
 import CustomerDash from "./components/customerDash";
-import RestaurantDash from "./components/ResturantDash";
+import DeliveryDash from "./components/deliveryDash";
 import AdminDash from "./components/adminDash";
-import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
-import MenuRegister from "./components/RestaurantOwner/MenuRegister";
+
+//home
+import Home from "./components/Home";
+import AllRestaurants from "./components/AllRestaurants";
+import Menu from "./components/Menu";
+// import MenuDetails from "./components/MenuDetails";
+
+// order service
 import DeliveryRoutes from "./routes/DeliveryRoutes";
 import OrderRoutes from "./routes/OrderRoutes";
 
+//Restaurant Service
+import RestaurantDash from "./components/ResturantDash";
+import RestaurantRegister from "./components/RestaurantOwner/RestaurantRegister";
+import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
+import EditMenuItem from "./components/RestaurantOwner/EditMenuItem";
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -24,17 +35,28 @@ function App() {
       <Routes>
         <Route path="/register" element={<Register />} />
 
+       
+        <Route path="/restaurants/:restaurantId/menuItems" element={<Menu />} />
+        <Route path="/allRestaurants" element={<AllRestaurants />} />
+        {/* <Route path="/restaurants/:restaurantId/menu/:menuItemId" element={<MenuDetails />} /> */}
+        
+        {DeliveryRoutes()}
+        {OrderRoutes()}
+        
+        
         <Route path="/login" element={<Login />} />
-
+        
+        {/Restaurant Service/}
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
-        <Route path="/add-menuItems" element={<MenuRegister />} />
+        <Route path="/restaurants/:restaurantId/menu" element={<AddMenuItem />} />
+        <Route path="/menu/:id/edit" element={<EditMenuItem/>}/>
 
         <Route
-          path="/customer"
+          path="/home"
           element={
             token && role === "customer" ? (
-              <CustomerDash />
+              <Home />
             ) : (
               <Navigate to="/login" />
             )
@@ -50,8 +72,16 @@ function App() {
             )
           }
         />
-        {DeliveryRoutes()}
-        {OrderRoutes()}
+        <Route
+          path="/delivery"
+          element={
+            token && role === "delivery" ? (
+              <DeliveryDash />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route
           path="/admin"
           element={
@@ -59,6 +89,7 @@ function App() {
           }
         />
         <Route path="/" element={<Navigate to="/login" />} />
+
       </Routes>
     </Router>
   );
