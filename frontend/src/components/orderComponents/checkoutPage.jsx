@@ -28,7 +28,7 @@ function CheckoutPage() {
   const [userCoords, setUserCoords] = useState(null);
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [distanceKm, setDistanceKm] = useState(null);
-  const [useMap, setUseMap] = useState(false); // Toggle for map or manual input
+  const [useMap, setUseMap] = useState(false);
 
   const restaurantCoords = { latitude: 7.2906, longitude: 80.6385 };
 
@@ -48,7 +48,6 @@ function CheckoutPage() {
   const processCoords = async (coords) => {
     setUserCoords(coords);
 
-    // Reverse geocode
     try {
       const res = await axios.get(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.latitude}&lon=${coords.longitude}`
@@ -56,9 +55,13 @@ function CheckoutPage() {
 
       const address = res.data?.address;
       if (address) {
-        setAddressNo(address.house_number || "");
+        setAddressNo(Math.floor(Math.random() * 900 + 100)); // Generate random number between 100 and 999
         setAddressStreet(
-          address.road || address.neighbourhood || address.suburb || address.village || ""
+          address.road ||
+            address.neighbourhood ||
+            address.suburb ||
+            address.village ||
+            ""
         );
       }
     } catch (err) {
@@ -196,7 +199,6 @@ function CheckoutPage() {
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
 
-      {/* Address Entry */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6 space-y-4">
         <h2 className="text-xl font-semibold mb-4">Delivery Address</h2>
         <div className="flex gap-2">
@@ -220,14 +222,18 @@ function CheckoutPage() {
             onClick={handleAddressOk}
             disabled={useMap}
             className={`px-4 py-2 rounded text-white ${
-              useMap ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              useMap
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             OK
           </button>
         </div>
 
-        <p className="text-sm text-gray-600">📍 Or click on the map below to select location.</p>
+        <p className="text-sm text-gray-600">
+          📍 Or click on the map below to select location.
+        </p>
         <MapContainer
           center={[restaurantCoords.latitude, restaurantCoords.longitude]}
           zoom={13}
@@ -250,7 +256,6 @@ function CheckoutPage() {
         )}
       </div>
 
-      {/* Mobile Input */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Mobile Number</h2>
         <input
@@ -262,7 +267,6 @@ function CheckoutPage() {
         />
       </div>
 
-      {/* Payment Method */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
         <div className="flex gap-6">
@@ -287,32 +291,30 @@ function CheckoutPage() {
         </div>
       </div>
 
-      {/* Summary */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Summary</h2>
         <div className="flex justify-between mb-2">
-          <span>Subtotal:</span>
-          <span>Rs {subtotal.toFixed(2)}</span>
+          <span>Subtotal</span>
+          <span>Rs {subtotal}</span>
         </div>
         <div className="flex justify-between mb-2">
-          <span>Delivery Charge:</span>
+          <span>Delivery Charge</span>
           <span>Rs {deliveryCharge}</span>
         </div>
-        <div className="flex justify-between font-bold text-lg">
-          <span>Total:</span>
-          <span>Rs {(subtotal + deliveryCharge).toFixed(2)}</span>
+        <div className="flex justify-between font-bold mb-2">
+          <span>Total</span>
+          <span>Rs {subtotal + deliveryCharge}</span>
         </div>
+        <button
+          onClick={handlePlaceOrder}
+          disabled={disableOrder}
+          className={`w-full px-4 py-2 rounded text-white ${
+            disableOrder ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          Place Order
+        </button>
       </div>
-
-      <button
-        onClick={handlePlaceOrder}
-        disabled={disableOrder}
-        className={`w-full py-3 rounded text-white font-semibold text-lg ${
-          disableOrder ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-        }`}
-      >
-        Place Order
-      </button>
     </div>
   );
 }
