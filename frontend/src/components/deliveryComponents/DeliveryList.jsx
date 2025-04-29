@@ -28,17 +28,18 @@ const DeliveryList = () => {
     const getDeliveries = async () => {
       try {
         const res = await getAllActiveOrders(status);
+        console.log(res);
         const deliveriesWithETA = await Promise.all(
           res.map((order) => {
             return new Promise((resolve) => {
               if (
-                order.restaurant?.address &&
+                order.restaurant?.location &&
                 order.location?.latitude &&
                 order.location?.longitude
               ) {
                 const from = L.latLng(
-                  order.restaurant.address.latitude,
-                  order.restaurant.address.longitude
+                  order.restaurant.location.latitude,
+                  order.restaurant.location.longitude
                 );
                 const to = L.latLng(
                   order.location.latitude,
@@ -67,6 +68,7 @@ const DeliveryList = () => {
             });
           })
         );
+        console.log(res);
         setDeliveries(deliveriesWithETA);
       } catch (error) {
         console.error("Error fetching active orders:", error);
