@@ -1,0 +1,144 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+function OrdersPage() {
+  const [activeTab, setActiveTab] = useState("ongoing");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      const endpoint =
+        activeTab === "ongoing"
+          ? "http://localhost:5003/api/order/active/getActiveOrders"
+          : "http://localhost:5003/api/order/active/getDeliveredOrders";
+
+      const response = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [activeTab]);
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold mb-6">My Orders</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        <button
+          onClick={() => setActiveTab("ongoing")}
+          className={`px-4 py-2 rounded ${
+            activeTab === "ongoing"
+              ? "bg-orange-500 text-white"
+              : "bg-white text-orange-600 border"
+          }`}
+        >
+          Ongoing Orders
+        </button>
+        <button
+          onClick={() => setActiveTab("past")}
+          className={`px-4 py-2 rounded ${
+            activeTab === "past"
+              ? "bg-orange-500 text-white"
+              : "bg-white text-orange-600 border"
+          }`}
+        >
+          Past Orders
+        </button>
+      </div>
+
+      {/* Orders Section */}
+      {loading ? (
+        <div>Loading orders...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {orders.length === 0 ? (
+            <div>No {activeTab === "ongoing" ? "ongoing" : "past"} orders found.</div>
+          ) : (
+            orders.map((order) => (
+              <div
+                key={order._id}
+                className="bg-gradient-to-br from-orange-100 via-white to-orange-50 rounded-lg shadow-md p-6 flex flex-col gap-3 cursor-pointer 
+                hover:scale-105  hover:shadow-xl hover:brightness-105 transition-all duration-700 ease-in-out"
+                onClick={() => setSelectedOrder(order)}
+              >
+                <p><strong>Status:</strong> {order.status}</p>
+                <p><strong>Ordered At:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+
+                <div className="text-right mt-auto">
+                  <button className="text-orange-600 underline mt-2">View Details</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full overflow-y-auto max-h-[90vh] relative">
+            <button
+              className="absolute top-3 right-3 text-gray-600"
+              onClick={() => setSelectedOrder(null)}
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4">Order Details</h2>
+
+            {/* Order items */}
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">Items:</h3>
+              {selectedOrder.items.map((item, index) => (
+                <div key={index} className="border p-2 rounded mb-2">
+                  <p><strong>Name:</strong> {item.name}</p>
+                  <p><strong>Quantity:</strong> {item.quantity}</p>
+                  <p><strong>Price:</strong> Rs {item.price}</p>
+                  <p><strong>Total:</strong> Rs {item.totalPrice}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Other details */}
+            <div className="mb-2"><strong>Delivery Charge:</strong> Rs {selectedOrder.deliveryCharge}</div>
+            <div className="mb-2"><strong>Subtotal:</strong> Rs {selectedOrder.subtotal}</div>
+            <div className="mb-2"><strong>Total Amount:</strong> Rs {selectedOrder.totalAmount}</div>
+            <div className="mb-2"><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</div>
+
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">Delivery Address:</h3>
+              <p>No: {selectedOrder.address.no}, {selectedOrder.address.street}</p>
+              <p>Phone: {selectedOrder.address.mobileNumber}</p>
+            </div>
+
+            <div className="mt-4 text-right">
+              <button
+                className="bg-orange-500 text-white px-4 py-2 rounded"
+                onClick={() => setSelectedOrder(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default OrdersPage;
