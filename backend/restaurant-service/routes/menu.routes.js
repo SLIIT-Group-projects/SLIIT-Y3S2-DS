@@ -7,7 +7,7 @@ const upload = require('../middleware/multerMiddleware')
 router.post('/', verifyToken, upload.single('image'), menuController.addMenuItem);
 router.get('/', menuController.getAllMenuItems);
 router.get('/restaurants/:restaurantId', verifyToken, menuController.getMenuItemsByRestaurant);
-router.get('/:restaurantId/menu-items', menuController.getMenuItemsToHome);
+router.get('/public/:restaurantId', menuController.getMenuItemsToHome);
 router.get('/:menuItemId', menuController.getMenuItemById);
 router.get('/my', verifyToken, menuController.getMyMenuItems);
 router.put('/:id', verifyToken, upload.single('image'), menuController.updateMenuItem);

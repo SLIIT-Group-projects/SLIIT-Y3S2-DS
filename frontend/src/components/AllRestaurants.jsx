@@ -42,7 +42,7 @@ const AllRestaurants = () => {
                     {restaurants.map(restaurant => (
                         <div
                             key={restaurant._id}
-                            onClick={() => navigate(`/menu-items/restaurants/${restaurant._id}/menu-items`)}
+                            onClick={() => navigate(`/restaurants/${restaurant._id}/menuItems`)}
                             className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                         >
                             <div className="relative h-48 overflow-hidden">

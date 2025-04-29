@@ -15,6 +15,7 @@ import AdminDash from "./components/adminDash";
 import Home from "./components/Home";
 import AllRestaurants from "./components/AllRestaurants";
 import Menu from "./components/Menu";
+import MenuDetails from "./components/MenuDetails";
 
 //Restaurant Service
 import RestaurantDash from "./components/ResturantDash";
@@ -33,6 +34,7 @@ function App() {
        
         <Route path="/restaurants/:restaurantId/menuItems" element={<Menu />} />
         <Route path="/allRestaurants" element={<AllRestaurants />} />
+        <Route path="/restaurants/:restaurantId/menu/:menuItemId" element={<MenuDetails />} />
         
         
         

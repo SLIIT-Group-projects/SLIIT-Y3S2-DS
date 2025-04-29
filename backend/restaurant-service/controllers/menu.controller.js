@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const MenuItem = require('../models/MenuItem');
 const Restaurant = require('../models/Restaurant');
 const cloudinary = require('../utils/cloudinary')
@@ -75,33 +76,35 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
 exports.getMenuItemsToHome = async (req, res) => {
     try {
         const { restaurantId } = req.params;
-        console.log(`Fetching menu for restaurant: ${restaurantId}`);
-
-        // Validate restaurantId format
-        if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
-            return res.status(400).json({ message: 'Invalid restaurant ID format' });
+        
+        // 1. Validate ID format
+        if (!mongoose.isValidObjectId(restaurantId)) {
+            return res.status(400).json({ message: 'Invalid restaurant ID' });
         }
 
-        // Check restaurant exists
-        const restaurantExists = await Restaurant.exists({ _id: restaurantId });
-        if (!restaurantExists) {
+        // 2. Check restaurant exists (simplified)
+        const restaurant = await Restaurant.findById(restaurantId).select('_id').lean();
+        if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
 
-        // Get menu items with proper ObjectId conversion
+        // 3. Get available menu items
         const items = await MenuItem.find({ 
-            restaurantId: mongoose.Types.ObjectId(restaurantId),
-            isAvailable: true // Changed from isActive to match your schema
+            restaurantId: restaurantId, // No need for ObjectId conversion
+            isAvailable: true
         }).lean();
 
-        console.log(`Found ${items.length} menu items for restaurant ${restaurantId}`);
-        
         return res.status(200).json(items);
+        
     } catch (error) {
-        console.error('Error in getMenuItemsToHome:', error);
+        console.error('Menu Fetch Error:', {
+            message: error.message,
+            stack: error.stack,
+            fullError: JSON.stringify(error, null, 2)
+        });
         return res.status(500).json({ 
-            message: 'Error retrieving menu items',
-            error: error.message 
+            message: 'Database operation failed',
+            error: process.env.NODE_ENV === 'development' ? error.message : null
         });
     }
 };
