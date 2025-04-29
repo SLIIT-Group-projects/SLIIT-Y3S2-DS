@@ -15,6 +15,11 @@ import MenuRegister from "./components/RestaurantOwner/MenuRegister";
 import DeliveryRoutes from "./routes/DeliveryRoutes";
 import OrderRoutes from "./routes/OrderRoutes";
 
+// resturant routes
+import AllRestaurants from "./components/AllRestaurants";
+import Menu from "./components/Menu";
+import MenuDetails from "./components/MenuDetails";
+
 function App() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -59,6 +64,20 @@ function App() {
           }
         />
         <Route path="/" element={<Navigate to="/login" />} />
+
+        {/* resturants */}
+        <Route path="/restaurants/:restaurantId/menuItems" element={<Menu />} />
+        <Route path="/allRestaurants" element={<AllRestaurants />} />
+        <Route
+          path="/restaurants/:restaurantId/menu/:menuItemId"
+          element={
+                    token && role === "customer" ? (
+                      <MenuDetails />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+        />
       </Routes>
     </Router>
   );

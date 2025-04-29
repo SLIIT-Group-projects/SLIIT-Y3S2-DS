@@ -1,22 +1,37 @@
+const mongoose = require('mongoose')
 const MenuItem = require('../models/MenuItem');
 const Restaurant = require('../models/Restaurant');
-
+const cloudinary = require('../utils/cloudinary')
 // Add a new menu item (only for restaurant owners)
 exports.addMenuItem = async (req, res) => {
     try {
         const { restaurantId } = req.body;
-        
+
         // Verify the restaurant exists and the user owns it
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        
+
         if (restaurant.ownerId.toString() !== req.user.id) {
             return res.status(403).json({ message: 'You can only add items to your own restaurant' });
-        } 
+        }
 
-        const newItem = new MenuItem(req.body);
+        let imageUrl = null;
+
+        if (req.file) { // single image upload
+            const base64Str = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const uploadResult = await cloudinary.uploader.upload(base64Str, {
+                folder: "menus",
+            });
+            imageUrl = uploadResult.secure_url;
+        }
+
+        const newItem = new MenuItem({
+            ...req.body,
+            imageUrl, // set the uploaded image URL
+        });
+
         const savedItem = await newItem.save();
         res.status(201).json(savedItem);
     } catch (error) {
@@ -38,14 +53,14 @@ exports.getAllMenuItems = async (req, res) => {
 exports.getMenuItemsByRestaurant = async (req, res) => {
     try {
         const { restaurantId } = req.params;
-        
+
         // For restaurant users, verify they own the restaurant
         if (req.user.role === 'restaurant') {
             const restaurant = await Restaurant.findById(restaurantId);
             if (!restaurant) {
                 return res.status(404).json({ message: 'Restaurant not found' });
             }
-            
+
             if (restaurant.ownerId.toString() !== req.user.id) {
                 return res.status(403).json({ message: 'You can only view your own restaurant menu' });
             }
@@ -55,6 +70,42 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving restaurant items', error });
+    }
+};
+
+exports.getMenuItemsToHome = async (req, res) => {
+    try {
+        const { restaurantId } = req.params;
+        
+        // 1. Validate ID format
+        if (!mongoose.isValidObjectId(restaurantId)) {
+            return res.status(400).json({ message: 'Invalid restaurant ID' });
+        }
+
+        // 2. Check restaurant exists (simplified)
+        const restaurant = await Restaurant.findById(restaurantId).select('_id').lean();
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // 3. Get available menu items
+        const items = await MenuItem.find({ 
+            restaurantId: restaurantId, // No need for ObjectId conversion
+            isAvailable: true
+        }).lean();
+
+        return res.status(200).json(items);
+        
+    } catch (error) {
+        console.error('Menu Fetch Error:', {
+            message: error.message,
+            stack: error.stack,
+            fullError: JSON.stringify(error, null, 2)
+        });
+        return res.status(500).json({ 
+            message: 'Database operation failed',
+            error: process.env.NODE_ENV === 'development' ? error.message : null
+        });
     }
 };
 
@@ -80,15 +131,15 @@ exports.getMyMenuItems = async (req, res) => {
     try {
         // Find all restaurants owned by this user
         const restaurants = await Restaurant.find({ ownerId: req.user.id });
-        
+
         if (restaurants.length === 0) {
             return res.status(404).json({ message: 'No restaurants found for this user' });
         }
-        
+
         // Get menu items for all of the user's restaurants
         const restaurantIds = restaurants.map(r => r._id);
         const items = await MenuItem.find({ restaurantId: { $in: restaurantIds } });
-        
+
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving menu items', error });
@@ -96,23 +147,35 @@ exports.getMyMenuItems = async (req, res) => {
 };
 
 // Update a menu item
+// Update a menu item
 exports.updateMenuItem = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // First get the menu item to check ownership
         const menuItem = await MenuItem.findById(id);
         if (!menuItem) {
             return res.status(404).json({ message: 'Menu item not found' });
         }
-        
+
         // Check if user owns the restaurant this item belongs to
         const restaurant = await Restaurant.findById(menuItem.restaurantId);
         if (restaurant.ownerId.toString() !== req.user.id) {
             return res.status(403).json({ message: 'You can only update items from your own restaurant' });
         }
 
-        const updatedItem = await MenuItem.findByIdAndUpdate(id, req.body, { new: true });
+        let updateData = { ...req.body };
+
+        // Handle image upload if file exists
+        if (req.file) {
+            const base64Str = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const uploadResult = await cloudinary.uploader.upload(base64Str, {
+                folder: "menus",
+            });
+            updateData.imageUrl = uploadResult.secure_url;
+        }
+
+        const updatedItem = await MenuItem.findByIdAndUpdate(id, updateData, { new: true });
         res.status(200).json(updatedItem);
     } catch (error) {
         res.status(500).json({ message: 'Error updating item', error });
@@ -123,13 +186,13 @@ exports.updateMenuItem = async (req, res) => {
 exports.deleteMenuItem = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // First get the menu item to check ownership
         const menuItem = await MenuItem.findById(id);
         if (!menuItem) {
             return res.status(404).json({ message: 'Menu item not found' });
         }
-        
+
         // Check if user owns the restaurant this item belongs to
         const restaurant = await Restaurant.findById(menuItem.restaurantId);
         if (restaurant.ownerId.toString() !== req.user.id) {
