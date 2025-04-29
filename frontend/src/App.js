@@ -1,4 +1,3 @@
-// frontend/src/App.js
 import {
   BrowserRouter as Router,
   Routes,
@@ -21,16 +20,27 @@ import AllRestaurants from "./components/AllRestaurants";
 import Menu from "./components/Menu";
 import MenuDetails from "./components/MenuDetails";
 
+
+import PaymentForm from "./components/payment/PaymentForm"
+import AllCustomers from "./components/AdminDashboard/AllCustomers"
+import TransactionList from "./components/AdminDashboard/Transaction";
+import AdminRestaurantList from "./components/AdminDashboard/ResturantList"
+
+// toast msg
+import { Toaster } from "react-hot-toast";
+import AdminAllOrders from "./components/AdminDashboard/AllOrders";
 function App() {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role")?.toLowerCase(); // ✅ Normalize
 
   return (
     <Router>
+      <Toaster position="top-center" />
       <Routes>
         <Route path="/register" element={<Register />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/payment" element={<PaymentForm />} />
 
         <Route path="/restaurant" element={<RestaurantDash />} />
         <Route path="/restaurant-register" element={<RestaurantRegister />} />
@@ -83,6 +93,10 @@ function App() {
                     )
                   }
         />
+        <Route path="/admin/users" element={<AllCustomers />} />
+        <Route path="/admin/transactions" element={<TransactionList />} />
+        <Route path="/admin/restaurants" element={<AdminRestaurantList />} />
+        <Route path="/admin/orders" element={<AdminAllOrders />} />
       </Routes>
     </Router>
   );

@@ -28,6 +28,11 @@ const restaurantSchema = new mongoose.Schema({
         close: { type: String, required: true }
     }],
     isAvailable: { type: Boolean, default: true },
+    status: {
+        type: String,
+        enum: ['Pending', 'Approved', 'Rejected'],
+        default: 'Pending'
+    },
     ownerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -48,4 +53,4 @@ const restaurantSchema = new mongoose.Schema({
       }
 }, { timestamps: true }); // createdAt and updatedAt
 
-module.exports = mongoose.models.Restaurant || mongoose.model('Restaurant', restaurantSchema);
+module.exports = mongoose.model('Restaurant', restaurantSchema);
