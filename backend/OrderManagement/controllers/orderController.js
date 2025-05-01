@@ -255,10 +255,8 @@ exports.getActiveOrders = async (req, res) => {
 
 exports.getDeliveredOrders = async (req, res) => {
   try {
-    // 1. Find only delivered orders directly from the DB
     const deliveredOrders = await Order.find({ status: "Delivered" });
 
-    // 2. Fetch menu item details for each delivered order
     const ordersWithMenuDetails = await Promise.all(
       deliveredOrders.map(async (order) => {
         try {
@@ -369,7 +367,6 @@ exports.getOrdersWithResturants = async (req, res) => {
 
     const ordersWithDetails = await Promise.all(
       orders.map(async (order) => {
-        // 🧾 Get menu item details
         const orderItemsWithDetails = await Promise.all(
           order.items.map(async (item) => {
             try {
@@ -386,7 +383,6 @@ exports.getOrdersWithResturants = async (req, res) => {
           })
         );
 
-        // 🏪 Get restaurant details
         let restaurantDetails = null;
         try {
           const restId = order.restaurantId?.toString(); // Ensure it's a string
@@ -437,7 +433,7 @@ exports.getOrderByIdWithRestaurantDetails = async (req, res) => {
       })
     );
 
-    // 🏪 Get restaurant details
+    // Get restaurant details
     let restaurantDetails = null;
     try {
       const restId = order.restaurantId?.toString();
@@ -449,7 +445,7 @@ exports.getOrderByIdWithRestaurantDetails = async (req, res) => {
       console.error("Error fetching restaurant details:", error.message);
     }
 
-    // ✅ Correct response
+    //  Correct response
     res.json({
       ...order.toObject(),
       items: orderItemsWithDetails,

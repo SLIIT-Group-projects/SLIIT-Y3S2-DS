@@ -103,10 +103,10 @@ function ViewBasket() {
       {restaurants.length > 0 && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
           <button
-            onClick={() => navigate("/cart")}
+            onClick={() => navigate("/orderHistory")}
             className="bg-green-500 hover:bg-green-600 text-white py-3 px-8 rounded-full text-lg shadow-lg"
           >
-            View Full Cart
+            View Orders
           </button>
         </div>
       )}

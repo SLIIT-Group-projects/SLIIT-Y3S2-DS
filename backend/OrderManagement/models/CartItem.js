@@ -25,15 +25,14 @@ const cartItemSchema = new mongoose.Schema(
       min: 1,
     },
     name: String,
-    price: Number, // single unit price
-    totalPrice: Number, // quantity * price
+    price: Number, 
+    totalPrice: Number, 
     imageUrl: String,
     preparationTime: Number,
   },
   { timestamps: true }
 );
 
-// Compound index for user + restaurant (1 cart per restaurant per user)
 cartItemSchema.index({ userId: 1, restaurantId: 1 });
 
 module.exports = mongoose.model("CartItem", cartItemSchema);
