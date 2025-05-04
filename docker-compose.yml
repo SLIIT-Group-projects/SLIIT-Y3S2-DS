@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./backend/AuthService
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    depends_on:
+      - mongo
+
+  payment-service:
+    build: ./backend/PaymentAuthService
+    ports:
+      - "5005:5005"
+    environment:
+      - PORT=5005
+    depends_on:
+      - mongo
+
+  order-service:
+    build: ./backend/OrderManagement
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+    depends_on:
+      - mongo
+
+  restaurant-service:
+    build: ./backend/restaurant-service
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+    depends_on:
+      - mongo
+
+  delivery-service:
+    build: ./backend/DeliveryAndNotify
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - order-service
+      - payment-service
+      - restaurant-service
+      - delivery-service
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
