@@ -237,7 +237,7 @@ function DeliveryDash() {
             className="flex justify-between bg-gray-700 text-white gap-2 mt-4 px-4 py-4 text-lg rounded-2xl shadow-md cursor-pointer hover:bg-gray-800"
             onClick={handleHistory}
           >
-            <div className=" text-xl font-semibold">Delivey History</div>
+            <div className=" text-xl font-semibold">Delivery History</div>
             <div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +266,11 @@ function DeliveryDash() {
           {isOnline ? (
             <DeliveryList />
           ) : (
-            <div>you are not online stupid toggle the switch</div>
+            <div className="flex justify-center items-center h-64">
+              <div className="text-gray-500 text-lg font-semibold">
+                You are offline please mark as online to get orders......
+              </div>
+            </div>
           )}
         </div>
       </div>
