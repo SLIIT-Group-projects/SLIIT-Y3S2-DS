@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, ShoppingBag, Clock, Star } from 'lucide-react';
+import NavBar from './NavBar';
 
 const Menu = () => {
     const { restaurantId } = useParams();
@@ -110,6 +111,9 @@ const Menu = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
+            <div className="pb-4">
+                <NavBar/>
+            </div>
             <div className="container mx-auto px-4 py-8 pl-12 pr-12">
                 <button
                     onClick={handleBackClick}

@@ -82,6 +82,25 @@ exports.getDeliveryById = async (req, res) => {
   }
 };
 
+// get delivery by order id
+exports.getDeliveryByOrderId = async (req, res) => {
+  try {
+    const orderId = req.params.orderId; // Get the orderId from the URL params
+
+    const delivery = await DeliveryOrder.findOne({ orderId }); // Query by orderId
+
+    if (!delivery) {
+      return res.status(404).json({ message: "Delivery order not found for this order ID." });
+    }
+
+    res.status(200).json(delivery);
+  } catch (error) {
+    console.error("Get Delivery by Order ID Error:", error);
+    res.status(500).json({ message: "Failed to get delivery order by order ID." });
+  }
+};
+
+
 //get all deliveries
 exports.getAllDeliveries = async (req, res) => {
   try {
