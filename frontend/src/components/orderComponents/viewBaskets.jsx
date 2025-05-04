@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import NavBar from "../NavBar";
 
 function ViewBasket() {
   const [restaurants, setRestaurants] = useState([]);
@@ -38,6 +39,9 @@ function ViewBasket() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100">
+      <div className="pb-4">
+                <NavBar/>
+            </div>
       <h1 className="text-3xl font-bold mb-6">Your Basket</h1>
 
       {restaurants.length === 0 ? (

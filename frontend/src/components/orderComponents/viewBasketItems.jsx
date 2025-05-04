@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../NavBar";
 
 
 
@@ -123,6 +124,9 @@ function ViewCartItems() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100">
+      <div className="pb-4">
+                <NavBar/>
+            </div>
       <h1 className="text-3xl font-bold mb-6">
         Items in Your {restaurantName} Cart
       </h1>

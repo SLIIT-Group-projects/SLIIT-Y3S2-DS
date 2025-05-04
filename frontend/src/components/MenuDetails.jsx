@@ -4,6 +4,7 @@ import { ArrowLeft, ShoppingBag, Clock, Star, ChevronRight, Utensils, Flame, Lea
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import NavBar from './NavBar';
 
 
 const MenuDetails = () => {
@@ -159,6 +160,9 @@ const MenuDetails = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen pb-12">
+            <div className="pb-4">
+                <NavBar/>
+            </div>
             <div className="container mx-auto px-4 py-8 pl-12 pr-12">
                 <button 
                     onClick={handleBackClick} 

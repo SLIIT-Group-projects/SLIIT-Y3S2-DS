@@ -15,6 +15,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import NavBar from "../NavBar";
 
 const stripePromise = loadStripe("pk_test_51RGKwjQhd2Ny3K59mCs1TIaenoQpQUv7Yn4VHMEi7xFlpxWgSpLrnBJSbL57qFbYCJeqgpqoqjgpkOPtLiva0SlK00uEjqZ2Jy");
 
@@ -399,6 +400,9 @@ function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      <div className="pb-4">
+                <NavBar/>
+            </div>
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
 
       {/* Address Fields */}

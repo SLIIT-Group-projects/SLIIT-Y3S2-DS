@@ -5,6 +5,7 @@ import { Heart, ShoppingBag, Clock, Check } from 'lucide-react';
 import deliveryGuy from '../assets/deliveryGuy.png';
 import foodimage from '../assets/foodDelivery.png';
 import meal from '../assets/meal.jpg';
+import NavBar from './NavBar';
 
 const Home = () => {
     const [restaurants, setRestaurants] = useState([]);
@@ -37,6 +38,9 @@ const Home = () => {
 
     return (
         <div className="font-sans">
+            <div>
+                <NavBar/>
+            </div>
             {/* Hero Section */}
             <div className="bg-gradient-to-r from-orange-50 to-white pl-12 pr-12">
                 <div className="container mx-auto px-4 py-16 md:py-24">

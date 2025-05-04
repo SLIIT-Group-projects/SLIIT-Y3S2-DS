@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MapPin, Clock, Star, ChefHat, Utensils } from 'lucide-react';
+import NavBar from './NavBar';
 
 const AllRestaurants = () => {
     const [restaurants, setRestaurants] = useState([]);
@@ -30,6 +31,9 @@ const AllRestaurants = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen py-12 bg-gradient-to-r from-orange-100 to-orange-50 pl-12 pr-12">
+            <div className="pb-4">
+                <NavBar/>
+            </div>
             <div className="container mx-auto px-4 ">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold mb-4">Discover <span className="text-orange-500">Restaurants</span></h1>

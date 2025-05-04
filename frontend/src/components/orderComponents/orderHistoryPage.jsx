@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../NavBar";
 
 function OrdersPage() {
   const [activeTab, setActiveTab] = useState("ongoing");
@@ -55,6 +56,9 @@ function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      <div className="pb-4">
+                <NavBar/>
+            </div>
       <h1 className="text-3xl font-bold mb-6">My Orders</h1>
 
       {/* Tabs */}
