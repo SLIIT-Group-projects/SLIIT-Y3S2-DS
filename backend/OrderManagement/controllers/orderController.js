@@ -1,6 +1,8 @@
 const CartItem = require("../models/CartItem");
 const Order = require("../models/Order");
 const axios = require("axios");
+const sendEmail = require("../util/mailer");
+// const sendEmail = require("../utils/sendEmail");
 
 exports.placeOrder = async (req, res) => {
   const userId = req.user.id;
@@ -12,13 +14,14 @@ exports.placeOrder = async (req, res) => {
     longitude,
     latitude,
     deliveryCharge,
-    mobileNumber,  // Add mobileNumber to the destructured body
+    mobileNumber,
   } = req.body;
 
+  // Input validation
   if (
     !restaurantId || !paymentMethod ||
     !addressNo || !addressStreet || 
-    !mobileNumber || // Check if mobileNumber is provided
+    !mobileNumber ||
     typeof longitude !== "number" || typeof latitude !== "number" ||
     typeof deliveryCharge !== "number"
   ) {
@@ -26,31 +29,30 @@ exports.placeOrder = async (req, res) => {
   }
 
   try {
-    // Get cart items for the user and restaurant
+    // Get cart items
     const cartItems = await CartItem.find({ userId, restaurantId });
-
     if (!cartItems.length) {
       return res.status(400).json({ message: "No items in cart for this restaurant" });
     }
 
-    // Fetch menu item details using axios
+    // Fetch menu item details
     const menuItemDetailsPromises = cartItems.map(async (item) => {
       try {
         const response = await axios.get(`http://localhost:5004/api/menu-items/${item.menuItemId}`);
-        return response.data; // Menu item details
+        return response.data;
       } catch (error) {
-        console.error(`Error fetching menu item details for ${item.menuItemId}:`, error.message);
-        return null; // Return null if there's an error fetching the menu item
+        console.error(`Error fetching menu item ${item.menuItemId}:`, error.message);
+        return null;
       }
     });
 
     const menuItems = await Promise.all(menuItemDetailsPromises);
 
-    // Calculate subtotal and total amount
+    // Calculate totals
     const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
     const totalAmount = subtotal + deliveryCharge;
 
-    // Map cart items with fetched menu item details
+    // Format order items
     const items = cartItems.map((item, index) => {
       const menuItem = menuItems[index];
       return {
@@ -59,11 +61,11 @@ exports.placeOrder = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
-        menuItemDetails: menuItem ? menuItem : null, // Append menu item details or null if not found
+        menuItemDetails: menuItem || null,
       };
     });
 
-    // Create the new order
+    // Create order
     const order = new Order({
       userId,
       restaurantId,
@@ -75,7 +77,7 @@ exports.placeOrder = async (req, res) => {
       address: {
         no: addressNo,
         street: addressStreet,
-        mobileNumber: mobileNumber, // Save the mobile number in address
+        mobileNumber,
       },
       location: {
         longitude,
@@ -85,7 +87,29 @@ exports.placeOrder = async (req, res) => {
     });
 
     await order.save();
-    await CartItem.deleteMany({ userId, restaurantId }); // Clear the cart after order is placed
+    await CartItem.deleteMany({ userId, restaurantId });
+
+    // Send email to hardcoded address
+    const emailContent = `
+      <h2>Order Confirmation</h2>
+      <p>Your order has been placed successfully.</p>
+      <p><strong>Order ID:</strong> ${order._id}</p>
+      <p><strong>Total Amount:</strong> $${totalAmount.toFixed(2)}</p>
+      <p><strong>Delivery Address:</strong> ${addressNo}, ${addressStreet}</p>
+      <p><strong>Mobile:</strong> ${mobileNumber}</p>
+      <p><strong>Status:</strong> ${order.status}</p>
+      <hr/>
+      <h3>Items Ordered:</h3>
+      <ul>
+        ${items.map(i => `<li>${i.quantity} x ${i.name} - $${i.totalPrice.toFixed(2)}</li>`).join('')}
+      </ul>
+    `;
+
+    try {
+      await sendEmail("kaushikadaham2002@gmail.com", "Your Order Confirmation", emailContent);
+    } catch (emailError) {
+      console.error("Failed to send email:", emailError.message);
+    }
 
     res.status(201).json({ message: "Order placed successfully", order });
   } catch (error) {
@@ -93,6 +117,7 @@ exports.placeOrder = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
   
   //Get a order By ID
