@@ -23,6 +23,12 @@ router.get("/active/getActiveOrders", orderController.getActiveOrders);
 // get dilvers orders
 router.get("/active/getDeliveredOrders", orderController.getDeliveredOrders);
 
+// get orders of restaurant
+router.get(
+  "/restaurant/:restaurantId",
+  verifyToken,
+  orderController.getOrdersByRestaurantId
+);
 // Update order status
 router.put("/:id/status", verifyToken, orderController.updateOrderStatus);
 
