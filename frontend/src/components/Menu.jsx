@@ -50,7 +50,7 @@ const Menu = () => {
     }, [restaurantId]);
 
     const handleBackClick = () => {
-        navigate(-1);
+        navigate('/allRestaurants');
     };
 
     const handleHomeClick = () => {

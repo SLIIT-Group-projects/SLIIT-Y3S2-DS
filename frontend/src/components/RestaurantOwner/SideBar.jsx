@@ -13,10 +13,10 @@ const Sidebar = ({ activeTab, setActiveTab, expanded, setExpanded }) => {
 
   const menuItems = [
     { name: "Dashboard", icon: DashboardIcon, path: "/restaurantOwner" },
-    { name: "Product", icon: ProductIcon, path: "/products" },
-    { name: "Flash Sales", icon: FlashSalesIcon, path: "/flash-sales" },
-    { name: "Orders", icon: OrdersIcon, path: "/orders" },
-    { name: "Payments", icon: WithdrawalIcon, path: "/payments" },
+   // { name: "Product", icon: ProductIcon, path: "/products" },
+   // { name: "Flash Sales", icon: FlashSalesIcon, path: "/flash-sales" },
+    { name: "Orders", icon: OrdersIcon, path: "/restaurantsOrders" },
+    //{ name: "Payments", icon: WithdrawalIcon, path: "/payments" },
     { name: "Restaurants", icon: StoreIcon, path: "/myRestaurants" },
   ];
 

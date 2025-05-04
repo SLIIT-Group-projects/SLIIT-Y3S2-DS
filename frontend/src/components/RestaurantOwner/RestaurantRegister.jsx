@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import deleteButton from '../../assets/deleteButton.png';
 import { useNavigate } from 'react-router-dom';
-
+import Swal from 'sweetalert2';
 function RestaurantRegister() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -125,7 +125,7 @@ function RestaurantRegister() {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    /*const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
     
@@ -203,7 +203,7 @@ function RestaurantRegister() {
             });
     
             alert('Restaurant added successfully!');
-            navigate('/restaurant-dashboard');
+            navigate('/restaurantOwner');
         } catch (err) {
             console.error('Registration error:', err);
             alert(err.response?.data?.message || err.message || "Error adding restaurant");
@@ -214,7 +214,118 @@ function RestaurantRegister() {
                 setImagePreview(null);
             }
         }
+    };*/
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+    
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Login Required',
+                    text: 'Please login first',
+                    confirmButtonColor: '#4f46e5'
+                });
+                navigate('/login');
+                return;
+            }
+    
+            // Validate required fields
+            const requiredFields = [
+                formData.name,
+                formData.description,
+                formData.cuisineType,
+                formData.contact.phone,
+                formData.contact.email,
+                formData.currentLocation.lat,
+                formData.currentLocation.lng,
+                formData.address.buildingNumber,
+                formData.address.street,
+                formData.address.city,
+                formData.address.postalCode
+            ];
+    
+            if (requiredFields.some(field => !field)) {
+                throw new Error('Please fill all required fields');
+            }
+    
+            const formDataToSend = new FormData();
+            
+            // Append basic fields
+            formDataToSend.append('name', formData.name);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('cuisineType', formData.cuisineType);
+            formDataToSend.append('isAvailable', formData.isAvailable.toString());
+    
+            // Append address fields with proper nesting
+            Object.entries(formData.address).forEach(([key, value]) => {
+                formDataToSend.append(`address[${key}]`, value);
+            });
+    
+            // Append contact fields with proper nesting
+            Object.entries(formData.contact).forEach(([key, value]) => {
+                formDataToSend.append(`contact[${key}]`, value);
+            });
+    
+            // Append current location
+            formDataToSend.append('currentLocation[lat]', formData.currentLocation.lat);
+            formDataToSend.append('currentLocation[lng]', formData.currentLocation.lng);
+    
+            // Append opening hours as array
+            formData.openingHours.forEach((hour, index) => {
+                formDataToSend.append(`openingHours[${index}][day]`, hour.day);
+                formDataToSend.append(`openingHours[${index}][open]`, hour.open);
+                formDataToSend.append(`openingHours[${index}][close]`, hour.close);
+            });
+    
+            // Append image if exists
+            if (formData.image) {
+                formDataToSend.append('image', formData.image);
+            }
+    
+            // Debug: Log form data before sending
+            for (let [key, value] of formDataToSend.entries()) {
+                console.log(key, value);
+            }
+    
+            await axios.post('http://localhost:5004/api/restaurants', formDataToSend, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+    
+            // Show success message with SweetAlert instead of regular alert
+            Swal.fire({
+                icon: 'success',
+                title: 'Registration Submitted!',
+                text: `Your restaurant "${formData.name}" has been registered. Check your email for confirmation.`,
+                confirmButtonColor: '#4f46e5'
+            });
+    
+            navigate('/restaurant-dashboard');
+        } catch (err) {
+            console.error('Registration error:', err);
+            
+            // Use SweetAlert for error messages too
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                text: err.response?.data?.message || err.message || "Error adding restaurant",
+                confirmButtonColor: '#4f46e5'
+            });
+        } finally {
+            setIsLoading(false);
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview.preview);
+                setImagePreview(null);
+            }
+        }
     };
+    
 
 
     return (

@@ -1,7 +1,7 @@
 import React from "react";
 import LogOutIcon from "../../assets/log-out.png";
 import ProfileIcon from "../../assets/profie.png";
-import LogoIcon from "../../assets/logo 1.png";
+import LogoIcon from "../../assets/logoImage.png";
 
 const HeaderComponent = ({ onLogout }) => {
  
@@ -11,7 +11,7 @@ const HeaderComponent = ({ onLogout }) => {
         <img
           src={LogoIcon}
           alt="logo"
-          className="w-[160px] h-[40px] object-contain"
+          className="w-[70px] h-[70px] object-contain"
         />
       </div>
 
