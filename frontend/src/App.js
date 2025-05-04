@@ -36,6 +36,7 @@ import AddMenuItem from "./components/RestaurantOwner/MenuRegister";
 import EditMenuItem from "./components/RestaurantOwner/EditMenuItem"; 
 import MyRestaurants from "./components/RestaurantOwner/MyRestaurants";
 import EditRestaurant from "./components/RestaurantOwner/EditRestaurant";
+import RestaurantOrders from "./components/RestaurantOwner/RestaurantOrders";
 import Home from "./components/Home";
 
 function App() {
@@ -66,7 +67,7 @@ function App() {
         <Route path="/menu/:id/edit" element={<EditMenuItem/>}/>
         <Route path="/myRestaurants" element={<MyRestaurants />} />
         <Route path="/restaurants/:restaurantId/edit" element={<EditRestaurant />} />
-
+        <Route path="/restaurantsOrders" element={<RestaurantOrders />} />
 
         <Route
           path="/restaurantOwner"

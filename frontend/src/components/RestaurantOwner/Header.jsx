@@ -4,6 +4,7 @@ import ProfileIcon from "../../assets/profie.png";
 import LogoIcon from "../../assets/logo 1.png";
 
 const HeaderComponent = ({ onLogout }) => {
+ 
   return (
     <header className="flex items-center justify-between bg-white px-6 py-4 shadow-md border-b border-gray-200 fixed top-0 left-0 right-0 z-30 h-16">
       <div className="flex items-center space-x-4 ml-20"> {/* Adjust ml to match sidebar width */}

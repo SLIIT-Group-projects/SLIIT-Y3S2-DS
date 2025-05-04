@@ -286,7 +286,43 @@ exports.getDeliveredOrders = async (req, res) => {
   }
 };
 
+// Add to orderController.js
 
+// Get orders by restaurant ID
+exports.getOrdersByRestaurantId = async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    const orders = await Order.find({ restaurantId });
+
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const orderItemsWithDetails = await Promise.all(
+          order.items.map(async (item) => {
+            try {
+              const menuItemResponse = await axios.get(
+                `http://localhost:5004/api/menu-items/${item.menuItem}`
+              );
+              item.menuItem = menuItemResponse.data;
+              return item;
+            } catch (error) {
+              console.error("Error fetching menu item details:", error);
+              item.menuItem = null;
+              return item;
+            }
+          })
+        );
+        order.items = orderItemsWithDetails;
+        return order;
+      })
+    );
+
+    res.status(200).json(ordersWithDetails);
+  } catch (error) {
+    console.error("Get orders by restaurant ID error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // Update an order
 exports.updateOrderStatus = async (req, res) => {

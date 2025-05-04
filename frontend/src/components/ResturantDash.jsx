@@ -83,14 +83,14 @@ function RestaurantDash() {
             await axios.delete(`http://localhost:5004/api/menu-items/${itemToDelete._id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             // Refresh the menu items after deletion
             const menuRes = await axios.get(
                 `http://localhost:5004/api/menu-items/restaurants/${selectedRestaurant._id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setMenuItems(menuRes.data);
-            
+
             setShowDeleteModal(false);
         } catch (err) {
             console.error("Error deleting menu item", err);
@@ -106,14 +106,18 @@ function RestaurantDash() {
         <div className="p-4 sm:p-6 md:p-10 flex-wrap bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-6">Restaurant Dashboard</h1>
 
-            <div className="flex gap-2 mb-4">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded">Add Menu</button>
-                <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
-                <button onClick={() => navigate('/restaurant-register')} className="bg-green-500 text-white px-4 py-2 rounded">Add Restaurant</button>
-            </div>
+
 
             <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">My Restaurants</h2>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">My Restaurants</h2>
+                    <button
+                        onClick={() => navigate('/restaurant-register')}
+                        className="bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                        Add Restaurant
+                    </button>
+                </div>
                 {restaurants.length === 0 ? (
                     <div className="bg-yellow-100 p-4 rounded">
                         <p>You don't have any restaurants yet.</p>
